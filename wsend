@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-#
+# 
 #
 #
 #
@@ -38,15 +38,31 @@ else
 fi
 # check to see if directory exists
 if [ -d "$HOME/.wsend" ]; then
-  #check to see if user is registered
-  if [ -e "$HOME/.wsend/.id" ]; then
-    id=`cat $HOME/.wsend/.id`
-  else
-    #if not print register info message 
-    registerInfoMessage
-  fi
+  wsend_dir="$HOME/.wsend"
 else
   mkdir $HOME/.wsend
+  #download wsend and put it in directory
+  #supporting files as well
+  #add alias to .bashrc
+  #execute alias command
 fi
+#check to see if user is registered
+if [ -e "$HOME/.wsend/.id" ]; then
+  id=`cat $HOME/.wsend/.id`
+else
+  #if not print register info message 
+  registerInfoMessage
+fi
+
+
+function registerInfoMessage () {
+  echo -e "\e[01;36m"
+  echo "info:  It appears you aren't registered"
+  echo "info:  Registration is free and comes with 2GB of storage space"
+  echo "info:  Plus get 1G of space for every friend you refer"
+  echo "info:  Sign up now with: wsend register"
+  echo "info:  your anonymous transfer will now continue"
+  echo -e "\e[00m"
+}
 
 
