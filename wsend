@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Copyright 2013 Abraham Massry
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+curl_installed=`curl --version 2>&1`
+if [ "$curl_installed" ]; then
+  #continue
+else
+  echo "curl is required but it is not installed. Aborting";
+  echo "For ubuntu please run: sudo apt-get install curl";
+  exit 1;
+fi
+# check to see if directory exists
+if [ -d "$HOME/.wsend" ]; then
+  #check to see if user is registered
+  if [ -e "$HOME/.wsend/.id" ]; then
+    id=`cat $HOME/.wsend/.id`
+  else
+    #if not print register info message 
+    registerInfoMessage
+  fi
+else
+  mkdir $HOME/.wsend
+fi
+
+
