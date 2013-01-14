@@ -29,6 +29,7 @@
 #
 
 curl_installed=`curl --version 2>&1`
+freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 if [ "$curl_installed" ]; then
   #continue
 else
@@ -40,11 +41,31 @@ fi
 if [ -d "$HOME/.wsend" ]; then
   wsend_dir="$HOME/.wsend"
 else
-  mkdir $HOME/.wsend
-  #download wsend and put it in directory
-  #supporting files as well
-  #add alias to .bashrc
+  # if not, install
+  if [ "$freeSpaceK" -gt 100 ]; then
+    mkdir $HOME/.wsend
+    #download wsend and put it in directory
+    wget -O $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend
+    chmod +x $HOME/.wsend/wsend
+    #supporting files as well
+    wget -O $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
+    wget -O $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
+    #add alias to .bashrc
+  else
+    echo "not enough free space to continue. Aborting";
+    exit 1;
+  fi
   #execute alias command
+  if [ $SHELL = "/bin/bash" ]; then
+    alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
+    alias wsend="$HOME/.wsend/wsend"
+  elif [[ $SHELL = "/usr/bin/csh" || $SHELL = "/bin/csh" ]]; then
+    alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
+    alias wsend "$HOME/.wsend/wsend"
+  elif [[ $SHELL = "/usr/bin/tcsh" || $SHELL = "bin/tcsh" ]]; then
+    alias wsend "$HOME/.wsend/wsend" >> $HOME/.tcshrc
+    alias wsend "$HOME/.wsend/wsend"
+
 fi
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
