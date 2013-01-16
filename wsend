@@ -62,9 +62,14 @@ else
   elif [[ $SHELL = "/usr/bin/csh" || $SHELL = "/bin/csh" ]]; then
     alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
     alias wsend "$HOME/.wsend/wsend"
-  elif [[ $SHELL = "/usr/bin/tcsh" || $SHELL = "bin/tcsh" ]]; then
+  elif [[ $SHELL = "/usr/bin/tcsh" || $SHELL = "/bin/tcsh" ]]; then
     alias wsend "$HOME/.wsend/wsend" >> $HOME/.tcshrc
     alias wsend "$HOME/.wsend/wsend"
+  elif [ $SHELL = "/bin/ksh" ]; then
+    alias wsend "$HOME/.wsend/wsend" >> $HOME/.tcshrc
+    alias wsend "$HOME/.wsend/wsend"
+
+  fi
 
 fi
 #check to see if user is registered
