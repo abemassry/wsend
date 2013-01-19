@@ -29,6 +29,11 @@
 #
 
 curl_installed=`curl --version 2>&1`
+protocol='http'
+site='dev-tw.massindustries.org'
+port='8000'
+page='/upload'
+host=$protocol'://'$site':'$port$page
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 if [ "$curl_installed" ]; then
   #continue
