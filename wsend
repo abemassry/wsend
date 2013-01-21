@@ -15,17 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-# 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 #
 
 curl_installed=`curl --version 2>&1`
@@ -33,7 +22,11 @@ protocol='http'
 site='dev-tw.massindustries.org'
 port='8000'
 page='/upload'
-host=$protocol'://'$site':'$port$page
+if [ "$port" ]; then
+  host=$protocol'://'$site':'$port$page
+else
+  host=$protocol'://'$site$page
+fi
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 if [ "$curl_installed" ]; then
   #continue
@@ -50,11 +43,11 @@ else
   if [ "$freeSpaceK" -gt 100 ]; then
     mkdir $HOME/.wsend
     #download wsend and put it in directory
-    wget -O $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend
+    curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend
     chmod +x $HOME/.wsend/wsend
     #supporting files as well
-    wget -O $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
-    wget -O $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
+    curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
+    curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
     #add alias to .bashrc
   else
     echo "not enough free space to continue. Aborting";
@@ -62,28 +55,88 @@ else
   fi
   #execute alias command
   if [ $SHELL = "/bin/bash" ]; then
-    alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
-    alias wsend="$HOME/.wsend/wsend"
-  elif [[ $SHELL = "/usr/bin/csh" || $SHELL = "/bin/csh" ]]; then
-    alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
-    alias wsend "$HOME/.wsend/wsend"
-  elif [[ $SHELL = "/usr/bin/tcsh" || $SHELL = "/bin/tcsh" ]]; then
-    alias wsend "$HOME/.wsend/wsend" >> $HOME/.tcshrc
-    alias wsend "$HOME/.wsend/wsend"
+    bashInstall
+  elif [ $SHELL = "/bin/csh" ]; then
+    cshInstall
+  elif [ $SHELL = "/bin/tcsh" ]; then
+    cshInstall
   elif [ $SHELL = "/bin/ksh" ]; then
-    alias wsend "$HOME/.wsend/wsend" >> $HOME/.tcshrc
-    alias wsend "$HOME/.wsend/wsend"
-
-  fi
-
-fi
+    kshInstall
+  elif [ $SHELL = "/bin/zsh" ]; then
+    zshInstall
+  fi # install done
+fi # install check done
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
+  #ask server for account type
+  if [ $user_type == 'free' ]; then
+    freeInfoMessage
+  fi
 else
   #if not print register info message 
   registerInfoMessage
 fi
+
+function bashInstall () {
+ if [ -e "$HOME/.bashrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.bashrc`
+   if [ "$als_set" ]; then
+     #do nothing
+   else
+     alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
+     alias wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
+   alias wsend="$HOME/.wsend/wsend"  
+ fi
+}
+
+function cshInstall () {
+ if [ -e "$HOME/.cshrc" ]; then
+   als_set=`grep "alias wsend " $HOME/.cshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+   else
+     alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
+     alias wsend "$HOME/.wsend/wsend"
+   fi
+ else
+   alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
+   alias wsend "$HOME/.wsend/wsend"  
+ fi
+}
+
+function kshInstall () {
+ if [ -e "$HOME/.kshrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.kshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+   else
+     alias wsend="$HOME/.wsend/wsend" >> $HOME/.kshrc
+     alias wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   alias wsend="$HOME/.wsend/wsend" >> $HOME/.kshrc
+   alias wsend="$HOME/.wsend/wsend"  
+ fi
+}
+
+function zshInstall () {
+ if [ -e "$HOME/.zshrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.zshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+   else
+     alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+     alias -g wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+   alias -g wsend="$HOME/.wsend/wsend"  
+ fi
+}
 
 
 function registerInfoMessage () {
@@ -91,9 +144,19 @@ function registerInfoMessage () {
   echo "info:  It appears you aren't registered"
   echo "info:  Registration is free and comes with 2GB of storage space"
   echo "info:  Plus get 1G of space for every friend you refer"
-  echo "info:  Sign up now with: wsend register"
+  echo "info:  Sign up now with: wsend --register"
+  echo "info:  anonymous transfers are limited to 200MB"
   echo "info:  your anonymous transfer will now continue"
   echo -e "\e[00m"
 }
+
+function freeInfoMessage () {
+  echo -e "\e[01;36m"
+  echo "info:  free accounts are limited to 2GB files"
+  echo "info:  your free transfer will now continue"
+  echo -e "\e[00m"
+}
+
+
 
 
