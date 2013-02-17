@@ -48,11 +48,11 @@ else
     #supporting files as well
     curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
     curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
-    #add alias to .bashrc
   else
     echo "not enough free space to continue. Aborting";
     exit 1;
   fi
+  #add alias to shell
   #execute alias command
   if [ $SHELL = "/bin/bash" ]; then
     bashInstall
@@ -65,7 +65,7 @@ else
   elif [ $SHELL = "/bin/zsh" ]; then
     zshInstall
   fi # install done
-fi # install check done
+fi # check for installation done
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
@@ -157,6 +157,8 @@ function freeInfoMessage () {
   echo -e "\e[00m"
 }
 
-
+echoerr() { 
+  echo "$@" 1>&2; 
+}
 
 
