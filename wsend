@@ -23,16 +23,16 @@ site='dev-tw.massindustries.org'
 port='8000'
 page='/upload'
 if [ "$port" ]; then
-  host=$protocol'://'$site':'$port$page
+  host=$protocol'://'$site':'$port
 else
-  host=$protocol'://'$site$page
+  host=$protocol'://'$site
 fi
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 if [ "$curl_installed" ]; then
   #continue
 else
-  echo "curl is required but it is not installed. Aborting";
-  echo "For ubuntu please run: sudo apt-get install curl";
+  echoerr "curl is required but it is not installed. Aborting";
+  echoerr "For ubuntu please run: sudo apt-get install curl";
   exit 1;
 fi
 # check to see if directory exists
@@ -49,7 +49,7 @@ else
     curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
     curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
   else
-    echo "not enough free space to continue. Aborting";
+    echoerr "not enough free space to continue. Aborting";
     exit 1;
   fi
   #add alias to shell
@@ -72,10 +72,15 @@ if [ -e "$HOME/.wsend/.id" ]; then
   #ask server for account type
   if [ $user_type == 'free' ]; then
     freeInfoMessage
+  elif [ $user_type == 'unregistered' ]; then
+    registerInfoMessage
+  elif [ $user_type == 'unknown' ]; then
+    unregisteredSignUp
   fi
-else
-  #if not print register info message 
-  registerInfoMessage
+fi
+
+if [ $1 == '--register' ]; then
+  register
 fi
 
 function bashInstall () {
@@ -84,11 +89,11 @@ function bashInstall () {
    if [ "$als_set" ]; then
      #do nothing
    else
-     alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
+     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
      alias wsend="$HOME/.wsend/wsend"
    fi
  else
-   alias wsend="$HOME/.wsend/wsend" >> $HOME/.bashrc
+   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
    alias wsend="$HOME/.wsend/wsend"  
  fi
 }
@@ -99,11 +104,11 @@ function cshInstall () {
    if [ "$als_set" ]; then
      #do nothing
    else
-     alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
+     echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
      alias wsend "$HOME/.wsend/wsend"
    fi
  else
-   alias wsend "$HOME/.wsend/wsend" >> $HOME/.cshrc
+   echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
    alias wsend "$HOME/.wsend/wsend"  
  fi
 }
@@ -114,11 +119,11 @@ function kshInstall () {
    if [ "$als_set" ]; then
      #do nothing
    else
-     alias wsend="$HOME/.wsend/wsend" >> $HOME/.kshrc
+     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
      alias wsend="$HOME/.wsend/wsend"
    fi
  else
-   alias wsend="$HOME/.wsend/wsend" >> $HOME/.kshrc
+   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
    alias wsend="$HOME/.wsend/wsend"  
  fi
 }
@@ -140,25 +145,55 @@ function zshInstall () {
 
 
 function registerInfoMessage () {
-  echo -e "\e[01;36m"
-  echo "info:  It appears you aren't registered"
-  echo "info:  Registration is free and comes with 2GB of storage space"
-  echo "info:  Plus get 1G of space for every friend you refer"
-  echo "info:  Sign up now with: wsend --register"
-  echo "info:  anonymous transfers are limited to 200MB"
-  echo "info:  your anonymous transfer will now continue"
-  echo -e "\e[00m"
+  echoerr -e "\e[01;36m"
+  echoerr "info:  It appears you aren't registered"
+  echoerr "info:  Registration is free and comes with 2GB of storage space"
+  echoerr "info:  Plus get 1G of space for every friend you refer"
+  echoerr "info:  Sign up now with: wsend --register"
+  echoerr "info:  unregistered accounts are limited to 200MB"
+  echoerr "info:  your unregistered transfer will now continue"
+  echoerr -e "\e[00m"
 }
 
 function freeInfoMessage () {
-  echo -e "\e[01;36m"
-  echo "info:  free accounts are limited to 2GB files"
-  echo "info:  your free transfer will now continue"
-  echo -e "\e[00m"
+  echoerr -e "\e[01;36m"
+  echoerr "info:  free accounts are limited to 2GB files"
+  echoerr "info:  for more space refer friends with: "
+  echoerr "info:  wsend --refer friend@example.com"
+  echoerr "info:  your free transfer will now continue"
+  echoerr -e "\e[00m"
 }
 
 echoerr() { 
   echo "$@" 1>&2; 
 }
 
+function unregisteredSignUp () {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  creating unregistered account"
+  echoerr "info:  Registration is free and comes with 2GB of storage space"
+  echoerr "info:  Plus get 1G of space for every friend you refer"
+  echoerr "info:  Sign up now with: wsend --register"
+  echoerr "info:  unregistered accounts are limited to 200MB"
+  echoerr "info:  your unregistered transfer will now continue"
+  echoerr -e "\e[00m"
+  curlOutSignUp=''
+  id=`curl -F start=1 $host/createunreg > >(tee $curlOutSignUp) 2> >(tee /dev/null >&2)`
+  echo "$id" > $HOME/.wsend/.id
+}
 
+function register() {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  enter email and password to register"
+  echoerr -e "\e[00m"
+  read -p "email: " entered_email
+  stty -echo
+  read -p "Password: " passw; echo
+  stty echo
+  uidFromFile=`cat $HOME/.wsend/.id`
+  registrationMessage=`curl -F uid=$uidFromFile;email=$entered_email;password=$passw $host/register_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  echoerr -e "\e[01;36m"
+  echoerr "info:  message from server:"
+  echoerr "info:  $registrationMessage"
+  echoerr -e "\e[00m"
+}
