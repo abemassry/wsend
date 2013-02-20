@@ -83,6 +83,10 @@ if [ $1 == '--register' ]; then
   register
 fi
 
+if [ $1 == '--login' ]; then
+  login
+fi
+
 function bashInstall () {
  if [ -e "$HOME/.bashrc" ]; then
    als_set=`grep "alias wsend=" $HOME/.bashrc`
@@ -196,4 +200,25 @@ function register() {
   echoerr "info:  message from server:"
   echoerr "info:  $registrationMessage"
   echoerr -e "\e[00m"
+}
+
+function login() {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  enter email and password to login"
+  echoerr -e "\e[00m"
+  read -p "email: " entered_email
+  stty -echo
+  read -p "Password: " passw; echo
+  stty echo
+  loggedInID=`curl -F email=$entered_email;password=$passw $host/login_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  if [ loggedInID ]; then
+    echo "$loggedInID" > $HOME/.wsend/.id
+    echoerr -e "\e[01;36m"
+    echoerr "info:  logged in sucessfully"
+    echoerr -e "\e[00m"
+  else
+    echoerr -e "\e[01;36m"
+    echoerr "info:  incorrect email password combo"
+    echoerr -e "\e[00m"
+  fi
 }
