@@ -79,12 +79,29 @@ if [ -e "$HOME/.wsend/.id" ]; then
   fi
 fi
 
-if [ $1 == '--register' ]; then
-  register
-fi
+if [ $1 ]; then
+  switch=`grep "--" $1`
+  if [ switch ]; then
+    if [ $1 == '--register' ]; then
+      register
+    elif [ $1 == '--login' ]; then
+      login
+    fi
+  else
+    fileToSendPermissions=`ls -al "$1" | awk '{print $1}'`
+    fileToSendFile=`echo $fileToSendPermissions | grep '-'`
+    fileToSendDir=`echo $fileToSendPermissions | grep 'd'`
+    if [ fileToSendFile ]; then
+      fileToSend=$1
+      urlOutput=''
+      curl -F filehandle=@$fileToSend;id=$id $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)
 
-if [ $1 == '--login' ]; then
-  login
+
+
+    elif [ fileToSendDir ]; then
+      
+    fi
+  fi
 fi
 
 function bashInstall () {
