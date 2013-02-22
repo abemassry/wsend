@@ -28,8 +28,149 @@ else
   host=$protocol'://'$site
 fi
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
+
+echoerr() { 
+  echo "$@" 1>&2; 
+}
+
+function bashInstall () {
+ if [ -e "$HOME/.bashrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.bashrc`
+   if [ "$als_set" ]; then
+     #do nothing
+     doNothing=''
+   else
+     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+     alias wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+   alias wsend="$HOME/.wsend/wsend"  
+ fi
+}
+
+function cshInstall () {
+ if [ -e "$HOME/.cshrc" ]; then
+   als_set=`grep "alias wsend " $HOME/.cshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+     doNothing=''
+   else
+     echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+     alias wsend "$HOME/.wsend/wsend"
+   fi
+ else
+   echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+   alias wsend "$HOME/.wsend/wsend"  
+ fi
+}
+
+function kshInstall () {
+ if [ -e "$HOME/.kshrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.kshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+     doNothing=''
+   else
+     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
+     alias wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
+   alias wsend="$HOME/.wsend/wsend"  
+ fi
+}
+
+function zshInstall () {
+ if [ -e "$HOME/.zshrc" ]; then
+   als_set=`grep "alias wsend=" $HOME/.zshrc`
+   if [ "$als_set" ]; then
+     #do nothing
+     doNothing=''
+   else
+     alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+     alias -g wsend="$HOME/.wsend/wsend"
+   fi
+ else
+   alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+   alias -g wsend="$HOME/.wsend/wsend"  
+ fi
+}
+
+
+function registerInfoMessage () {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  It appears you aren't registered"
+  echoerr "info:  Registration is free and comes with 2GB of storage space"
+  echoerr "info:  Plus get 1G of space for every friend you refer"
+  echoerr "info:  Sign up now with: wsend --register"
+  echoerr "info:  unregistered accounts are limited to 200MB"
+  echoerr "info:  your unregistered transfer will now continue"
+  echoerr -e "\e[00m"
+}
+
+function freeInfoMessage () {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  free accounts are limited to 2GB files"
+  echoerr "info:  for more space refer friends with: "
+  echoerr "info:  wsend --refer friend@example.com"
+  echoerr "info:  your free transfer will now continue"
+  echoerr -e "\e[00m"
+}
+
+function unregisteredSignUp () {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  creating unregistered account"
+  echoerr "info:  Registration is free and comes with 2GB of storage space"
+  echoerr "info:  Plus get 1G of space for every friend you refer"
+  echoerr "info:  Sign up now with: wsend --register"
+  echoerr "info:  unregistered accounts are limited to 200MB"
+  echoerr "info:  your unregistered transfer will now continue"
+  echoerr -e "\e[00m"
+  curlOutSignUp=''
+  id=`curl -F start=1 $host/createunreg > >(tee $curlOutSignUp) 2> >(tee /dev/null >&2)`
+  echo "$id" > $HOME/.wsend/.id
+}
+
+function register() {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  enter email and password to register"
+  echoerr -e "\e[00m"
+  read -p "email: " entered_email
+  stty -echo
+  read -p "Password: " passw; echo
+  stty echo
+  uidFromFile=`cat $HOME/.wsend/.id`
+  registrationMessage=`curl -F uid=$uidFromFile;email=$entered_email;password=$passw $host/register_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  echoerr -e "\e[01;36m"
+  echoerr "info:  message from server:"
+  echoerr "info:  $registrationMessage"
+  echoerr -e "\e[00m"
+}
+
+function login() {
+  echoerr -e "\e[01;36m"
+  echoerr "info:  enter email and password to login"
+  echoerr -e "\e[00m"
+  read -p "email: " entered_email
+  stty -echo
+  read -p "Password: " passw; echo
+  stty echo
+  loggedInID=`curl -F email=$entered_email;password=$passw $host/login_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  if [ loggedInID ]; then
+    echo "$loggedInID" > $HOME/.wsend/.id
+    echoerr -e "\e[01;36m"
+    echoerr "info:  logged in sucessfully"
+    echoerr -e "\e[00m"
+  else
+    echoerr -e "\e[01;36m"
+    echoerr "info:  incorrect email password combo"
+    echoerr -e "\e[00m"
+  fi
+}
 if [ "$curl_installed" ]; then
   #continue
+  continued=''
 else
   echoerr "curl is required but it is not installed. Aborting";
   echoerr "For ubuntu please run: sudo apt-get install curl";
@@ -94,148 +235,12 @@ if [ $1 ]; then
     if [ fileToSendFile ]; then
       fileToSend=$1
       urlOutput=''
-      curl -F filehandle=@$fileToSend;id=$id $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)
-
+      curl -F filehandle=@$fileToSend;uid=$id $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)
 
 
     elif [ fileToSendDir ]; then
-      
+     writeSomethingHere=''
     fi
   fi
 fi
 
-function bashInstall () {
- if [ -e "$HOME/.bashrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.bashrc`
-   if [ "$als_set" ]; then
-     #do nothing
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-     alias wsend="$HOME/.wsend/wsend"
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-   alias wsend="$HOME/.wsend/wsend"  
- fi
-}
-
-function cshInstall () {
- if [ -e "$HOME/.cshrc" ]; then
-   als_set=`grep "alias wsend " $HOME/.cshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-   else
-     echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-     alias wsend "$HOME/.wsend/wsend"
-   fi
- else
-   echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-   alias wsend "$HOME/.wsend/wsend"  
- fi
-}
-
-function kshInstall () {
- if [ -e "$HOME/.kshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.kshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-     alias wsend="$HOME/.wsend/wsend"
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-   alias wsend="$HOME/.wsend/wsend"  
- fi
-}
-
-function zshInstall () {
- if [ -e "$HOME/.zshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.zshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-   else
-     alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
-     alias -g wsend="$HOME/.wsend/wsend"
-   fi
- else
-   alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
-   alias -g wsend="$HOME/.wsend/wsend"  
- fi
-}
-
-
-function registerInfoMessage () {
-  echoerr -e "\e[01;36m"
-  echoerr "info:  It appears you aren't registered"
-  echoerr "info:  Registration is free and comes with 2GB of storage space"
-  echoerr "info:  Plus get 1G of space for every friend you refer"
-  echoerr "info:  Sign up now with: wsend --register"
-  echoerr "info:  unregistered accounts are limited to 200MB"
-  echoerr "info:  your unregistered transfer will now continue"
-  echoerr -e "\e[00m"
-}
-
-function freeInfoMessage () {
-  echoerr -e "\e[01;36m"
-  echoerr "info:  free accounts are limited to 2GB files"
-  echoerr "info:  for more space refer friends with: "
-  echoerr "info:  wsend --refer friend@example.com"
-  echoerr "info:  your free transfer will now continue"
-  echoerr -e "\e[00m"
-}
-
-echoerr() { 
-  echo "$@" 1>&2; 
-}
-
-function unregisteredSignUp () {
-  echoerr -e "\e[01;36m"
-  echoerr "info:  creating unregistered account"
-  echoerr "info:  Registration is free and comes with 2GB of storage space"
-  echoerr "info:  Plus get 1G of space for every friend you refer"
-  echoerr "info:  Sign up now with: wsend --register"
-  echoerr "info:  unregistered accounts are limited to 200MB"
-  echoerr "info:  your unregistered transfer will now continue"
-  echoerr -e "\e[00m"
-  curlOutSignUp=''
-  id=`curl -F start=1 $host/createunreg > >(tee $curlOutSignUp) 2> >(tee /dev/null >&2)`
-  echo "$id" > $HOME/.wsend/.id
-}
-
-function register() {
-  echoerr -e "\e[01;36m"
-  echoerr "info:  enter email and password to register"
-  echoerr -e "\e[00m"
-  read -p "email: " entered_email
-  stty -echo
-  read -p "Password: " passw; echo
-  stty echo
-  uidFromFile=`cat $HOME/.wsend/.id`
-  registrationMessage=`curl -F uid=$uidFromFile;email=$entered_email;password=$passw $host/register_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
-  echoerr -e "\e[01;36m"
-  echoerr "info:  message from server:"
-  echoerr "info:  $registrationMessage"
-  echoerr -e "\e[00m"
-}
-
-function login() {
-  echoerr -e "\e[01;36m"
-  echoerr "info:  enter email and password to login"
-  echoerr -e "\e[00m"
-  read -p "email: " entered_email
-  stty -echo
-  read -p "Password: " passw; echo
-  stty echo
-  loggedInID=`curl -F email=$entered_email;password=$passw $host/login_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
-  if [ loggedInID ]; then
-    echo "$loggedInID" > $HOME/.wsend/.id
-    echoerr -e "\e[01;36m"
-    echoerr "info:  logged in sucessfully"
-    echoerr -e "\e[00m"
-  else
-    echoerr -e "\e[01;36m"
-    echoerr "info:  incorrect email password combo"
-    echoerr -e "\e[00m"
-  fi
-}
