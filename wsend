@@ -32,107 +32,129 @@ freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 echoerr() { 
   echo "$@" 1>&2; 
 }
-
-function bashInstall () {
+echoerr "echoerr works"
+bashInstall () {
  if [ -e "$HOME/.bashrc" ]; then
    als_set=`grep "alias wsend=" $HOME/.bashrc`
    if [ "$als_set" ]; then
      #do nothing
-     doNothing=''
+     true
    else
      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-     alias wsend="$HOME/.wsend/wsend"
    fi
  else
    echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-   alias wsend="$HOME/.wsend/wsend"  
  fi
 }
-
-function cshInstall () {
+cshInstall () {
  if [ -e "$HOME/.cshrc" ]; then
    als_set=`grep "alias wsend " $HOME/.cshrc`
    if [ "$als_set" ]; then
      #do nothing
-     doNothing=''
+     true
    else
      echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-     alias wsend "$HOME/.wsend/wsend"
    fi
  else
    echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-   alias wsend "$HOME/.wsend/wsend"  
  fi
 }
 
-function kshInstall () {
+kshInstall () {
  if [ -e "$HOME/.kshrc" ]; then
    als_set=`grep "alias wsend=" $HOME/.kshrc`
    if [ "$als_set" ]; then
      #do nothing
-     doNothing=''
+     true
    else
      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-     alias wsend="$HOME/.wsend/wsend"
    fi
  else
    echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-   alias wsend="$HOME/.wsend/wsend"  
  fi
 }
 
-function zshInstall () {
+zshInstall () {
  if [ -e "$HOME/.zshrc" ]; then
    als_set=`grep "alias wsend=" $HOME/.zshrc`
    if [ "$als_set" ]; then
      #do nothing
-     doNothing=''
+     true
    else
      alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
-     alias -g wsend="$HOME/.wsend/wsend"
    fi
  else
    alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
-   alias -g wsend="$HOME/.wsend/wsend"  
  fi
 }
 
 
-function registerInfoMessage () {
+registerInfoMessage () {
   echoerr -e "\e[01;36m"
+  echoerr "info:  "
   echoerr "info:  It appears you aren't registered"
   echoerr "info:  Registration is free and comes with 2GB of storage space"
   echoerr "info:  Plus get 1G of space for every friend you refer"
   echoerr "info:  Sign up now with: wsend --register"
   echoerr "info:  unregistered accounts are limited to 200MB"
   echoerr "info:  your unregistered transfer will now continue"
+  echoerr "info:  "
   echoerr -e "\e[00m"
 }
 
-function freeInfoMessage () {
+freeInfoMessage () {
   echoerr -e "\e[01;36m"
+  echoerr "info:  "
   echoerr "info:  free accounts are limited to 2GB files"
   echoerr "info:  for more space refer friends with: "
   echoerr "info:  wsend --refer friend@example.com"
   echoerr "info:  your free transfer will now continue"
+  echoerr "info:  "
   echoerr -e "\e[00m"
 }
 
-function unregisteredSignUp () {
+unregisteredSignUp () {
   echoerr -e "\e[01;36m"
+  echoerr "info:  "
   echoerr "info:  creating unregistered account"
   echoerr "info:  Registration is free and comes with 2GB of storage space"
   echoerr "info:  Plus get 1G of space for every friend you refer"
   echoerr "info:  Sign up now with: wsend --register"
   echoerr "info:  unregistered accounts are limited to 200MB"
   echoerr "info:  your unregistered transfer will now continue"
+  echoerr "info:  "
   echoerr -e "\e[00m"
   curlOutSignUp=''
-  id=`curl -F start=1 $host/createunreg > >(tee $curlOutSignUp) 2> >(tee /dev/null >&2)`
-  echo "$id" > $HOME/.wsend/.id
+  unregCurlReturnVal=`curl -F start=1 $host/createunreg > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  echo "$unregCurlReturnVal" > $HOME/.wsend/.id
+  echoerr "unregCurlReturnVal: $unregCurlReturnVal"
+  echoerr " "
 }
 
-function register() {
+notEnoughSpaceErr () {
+  echoerr -e "\e[01;31m"
+  echoerr " err:  "
+  echoerr " err:  not enough space in your account for this transfer"
+  echoerr " err:  you can register with: wsend --register,"
+  echoerr " err:  send referrals with wsend --refer friend@example.com, or"
+  echoerr " err:  upgrade to a paid account at https://wsend.net"
+  echoerr " err:  "
+  echoerr -e "\e[00m"
+}
+
+filesizeTooLarge () {
+  echoerr -e "\e[01;31m"
+  echoerr " err:  "
+  echoerr " err:  this file is too large for your account"
+  echoerr " err:  you can register with: wsend --register"
+  echoerr " err:  for 2GB files, or"
+  echoerr " err:  upgrade to a paid account at https://wsend.net"
+  echoerr " err:  for 10GB files"
+  echoerr " err:  "
+  echoerr -e "\e[00m"
+}
+
+register() {
   echoerr -e "\e[01;36m"
   echoerr "info:  enter email and password to register"
   echoerr -e "\e[00m"
@@ -148,7 +170,7 @@ function register() {
   echoerr -e "\e[00m"
 }
 
-function login() {
+login() {
   echoerr -e "\e[01;36m"
   echoerr "info:  enter email and password to login"
   echoerr -e "\e[00m"
@@ -168,9 +190,20 @@ function login() {
     echoerr -e "\e[00m"
   fi
 }
+
+getAccountType() { 
+  user_type=`curl -F uid=$id $host/usertype 2>/dev/null`
+}
+
+getAccountSpace() {
+  accountSizeAvailable=`curl -F "uid=$id" -F "size=$fileToSendSize" $host/userspaceavailable 2>/dev/null`
+  accountSize=`curl -F "uid=$id" $host/userspace 2>/dev/null`
+}
+
+
 if [ "$curl_installed" ]; then
   #continue
-  continued=''
+  true
 else
   echoerr "curl is required but it is not installed. Aborting";
   echoerr "For ubuntu please run: sudo apt-get install curl";
@@ -195,15 +228,15 @@ else
   fi
   #add alias to shell
   #execute alias command
-  if [ $SHELL = "/bin/bash" ]; then
+  if [ $SHELL == "/bin/bash" ]; then
     bashInstall
-  elif [ $SHELL = "/bin/csh" ]; then
+  elif [ $SHELL == "/bin/csh" ]; then
     cshInstall
-  elif [ $SHELL = "/bin/tcsh" ]; then
+  elif [ $SHELL == "/bin/tcsh" ]; then
     cshInstall
-  elif [ $SHELL = "/bin/ksh" ]; then
+  elif [ $SHELL == "/bin/ksh" ]; then
     kshInstall
-  elif [ $SHELL = "/bin/zsh" ]; then
+  elif [ $SHELL == "/bin/zsh" ]; then
     zshInstall
   fi # install done
 fi # check for installation done
@@ -211,35 +244,86 @@ fi # check for installation done
 if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
   #ask server for account type
+  #user_type=`curl -F uid=$id $host/usertype > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  user_type=`curl -F uid=$id $host/usertype 2>/dev/null`
+  echoerr "got account type, its: $user_type"
   if [ $user_type == 'free' ]; then
     freeInfoMessage
   elif [ $user_type == 'unregistered' ]; then
     registerInfoMessage
-  elif [ $user_type == 'unknown' ]; then
+  elif [ $user_type -== 'unknown' ]; then
     unregisteredSignUp
   fi
+else
+  echoerr "signing up unregistered"
+  unregisteredSignUp
+  getAccountType
 fi
 
-if [ $1 ]; then
-  switch=`grep "--" $1`
-  if [ switch ]; then
-    if [ $1 == '--register' ]; then
-      register
-    elif [ $1 == '--login' ]; then
-      login
-    fi
+RETVAL=0
+loginBool="false"
+registerBool="false"
+fileSendBool="false"
+fileOrDirToSend=$1
+
+while test -n "$1"; do
+  case "$1" in
+   "") 
+      echo "Usage: $0 [-p|--preprocess] [-i|--image]"
+      exit 1
+      ;;
+   --login|-l)
+      loginBool="true"
+      registerBool="false"
+      fileSendBool="false"
+      shift
+      ;;
+   --register|-r)
+      registerBool="true"
+      loginBool="false"
+      fileSendBool="false"
+      shift
+      ;;
+    *)
+      fileSendBool="true"
+      loginBool="false"
+      registerBool="false"
+      shift
+      ;;
+  esac
+done
+
+if [ "$loginBool" == "true" ]; then
+  login
+fi
+
+if [ "$registerBool" == "true" ]; then
+  register
+fi
+
+#exit $RETVAL
+
+
+
+if [ "$fileSendBool" == "true" ]; then
+  if [ -d $fileOrDirToSend ]; then
+   writeSomethingHere=true
+   echo "something to go here"
   else
-    fileToSendPermissions=`ls -al "$1" | awk '{print $1}'`
-    fileToSendFile=`echo $fileToSendPermissions | grep '-'`
-    fileToSendDir=`echo $fileToSendPermissions | grep 'd'`
-    if [ fileToSendFile ]; then
-      fileToSend=$1
-      urlOutput=''
-      curl -F filehandle=@$fileToSend;uid=$id $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)
-
-
-    elif [ fileToSendDir ]; then
-     writeSomethingHere=''
+    fileToSend=$fileOrDirToSend
+    echoerr "uid:$id"
+    urlOutput=''
+    fileToSendSize=$(stat -c%s "$fileToSend")
+    getAccountSpace
+    if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+      notEnoughSpaceErr
+    elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+      filesizeTooLarge
+    else
+      #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
+      curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
+      echo $urlOutput
+      echo $curlReturn
     fi
   fi
 fi
