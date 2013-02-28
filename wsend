@@ -91,41 +91,40 @@ zshInstall () {
 
 registerInfoMessage () {
   echoerr -e "\e[01;36m"
-  echoerr "info:  "
-  echoerr "info:  It appears you aren't registered"
-  echoerr "info:  Registration is free and comes with 2GB of storage space"
-  echoerr "info:  Plus get 1G of space for every friend you refer"
-  echoerr "info:  Sign up now with: wsend --register"
-  echoerr "info:  unregistered accounts are limited to 200MB"
-  echoerr "info:  your unregistered transfer will now continue"
-  echoerr "info:  "
+  echoerr "info:    "
+  echoerr "info:    It appears you aren't registered"
+  echoerr "info:    Registration is free and comes with 2GB of storage space"
+  echoerr "info:    Plus get 1G of space for every friend you refer"
+  echoerr "info:    Sign up now with: wsend --register"
+  echoerr "info:    unregistered accounts are limited to 200MB"
+  echoerr "info:    your unregistered transfer will now continue"
+  echoerr "info:    "
   echoerr -e "\e[00m"
 }
 
 freeInfoMessage () {
   echoerr -e "\e[01;36m"
-  echoerr "info:  "
-  echoerr "info:  free accounts are limited to 2GB files"
-  echoerr "info:  for more space refer friends with: "
-  echoerr "info:  wsend --refer friend@example.com"
-  echoerr "info:  your free transfer will now continue"
-  echoerr "info:  "
+  echoerr "info:    "
+  echoerr "info:    free accounts are limited to 2GB files"
+  echoerr "info:    for more space refer friends with: "
+  echoerr "info:    wsend --refer friend@example.com"
+  echoerr "info:    your free transfer will now continue"
+  echoerr "info:    "
   echoerr -e "\e[00m"
 }
 
 unregisteredSignUp () {
   echoerr -e "\e[01;36m"
-  echoerr "info:  "
-  echoerr "info:  creating unregistered account"
-  echoerr "info:  Registration is free and comes with 2GB of storage space"
-  echoerr "info:  Plus get 1G of space for every friend you refer"
-  echoerr "info:  Sign up now with: wsend --register"
-  echoerr "info:  unregistered accounts are limited to 200MB"
-  echoerr "info:  your unregistered transfer will now continue"
-  echoerr "info:  "
+  echoerr "info:    "
+  echoerr "info:    creating unregistered account"
+  echoerr "info:    Registration is free and comes with 2GB of storage space"
+  echoerr "info:    Plus get 1G of space for every friend you refer"
+  echoerr "info:    Sign up now with: wsend --register"
+  echoerr "info:    unregistered accounts are limited to 200MB"
+  echoerr "info:    your unregistered transfer will now continue"
+  echoerr "info:    "
   echoerr -e "\e[00m"
-  curlOutSignUp=''
-  unregCurlReturnVal=`curl -F start=1 $host/createunreg > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  unregCurlReturnVal=`curl -F "start=1" $host/createunreg 2>/dev/null`
   echo "$unregCurlReturnVal" > $HOME/.wsend/.id
   echoerr "unregCurlReturnVal: $unregCurlReturnVal"
   echoerr " "
@@ -133,66 +132,66 @@ unregisteredSignUp () {
 
 notEnoughSpaceErr () {
   echoerr -e "\e[01;31m"
-  echoerr " err:  "
-  echoerr " err:  not enough space in your account for this transfer"
-  echoerr " err:  you can register with: wsend --register,"
-  echoerr " err:  send referrals with wsend --refer friend@example.com, or"
-  echoerr " err:  upgrade to a paid account at https://wsend.net"
-  echoerr " err:  "
+  echoerr "error:   "
+  echoerr "error:   not enough space in your account for this transfer"
+  echoerr "error:   you can register with: wsend --register,"
+  echoerr "error:   send referrals with wsend --refer friend@example.com, or"
+  echoerr "error:   upgrade to a paid account at https://wsend.net"
+  echoerr "error:   "
   echoerr -e "\e[00m"
 }
 
 filesizeTooLarge () {
   echoerr -e "\e[01;31m"
-  echoerr " err:  "
-  echoerr " err:  this file is too large for your account"
-  echoerr " err:  you can register with: wsend --register"
-  echoerr " err:  for 2GB files, or"
-  echoerr " err:  upgrade to a paid account at https://wsend.net"
-  echoerr " err:  for 10GB files"
-  echoerr " err:  "
+  echoerr "error:   "
+  echoerr "error:   this file is too large for your account"
+  echoerr "error:   you can register with: wsend --register"
+  echoerr "error:   for 2GB files, or"
+  echoerr "error:   upgrade to a paid account at https://wsend.net"
+  echoerr "error:   for 10GB files"
+  echoerr "error:   "
   echoerr -e "\e[00m"
 }
 
 register() {
   echoerr -e "\e[01;36m"
-  echoerr "info:  enter email and password to register"
+  echoerr "info:    enter email and password to register"
   echoerr -e "\e[00m"
   read -p "email: " entered_email
   stty -echo
   read -p "Password: " passw; echo
   stty echo
   uidFromFile=`cat $HOME/.wsend/.id`
-  registrationMessage=`curl -F uid=$uidFromFile;email=$entered_email;password=$passw $host/register_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
+  registrationMessage=`curl -F "uid=$uidFromFile" -F "email=$entered_email" -F "password=$passw" $host/register_cli 2>/dev/null`
   echoerr -e "\e[01;36m"
-  echoerr "info:  message from server:"
-  echoerr "info:  $registrationMessage"
+  echoerr "info:    message from server:"
+  echoerr "info:    $registrationMessage"
   echoerr -e "\e[00m"
 }
 
 login() {
   echoerr -e "\e[01;36m"
-  echoerr "info:  enter email and password to login"
+  echoerr "info:    enter email and password to login"
   echoerr -e "\e[00m"
   read -p "email: " entered_email
   stty -echo
   read -p "Password: " passw; echo
   stty echo
-  loggedInID=`curl -F email=$entered_email;password=$passw $host/login_cli > >(tee /dev/null) 2> >(tee /dev/null >&2)`
-  if [ loggedInID ]; then
+  loggedInID=`curl -F "email=$entered_email" -F "password=$passw" $host/login_cli 2>/dev/null`
+  if [ $loggedInID ]; then
     echo "$loggedInID" > $HOME/.wsend/.id
     echoerr -e "\e[01;36m"
-    echoerr "info:  logged in sucessfully"
+    echoerr "info:    logged in sucessfully"
     echoerr -e "\e[00m"
   else
-    echoerr -e "\e[01;36m"
-    echoerr "info:  incorrect email password combo"
+    echoerr -e "\e[01;31m"
+    echoerr "error:   incorrect email password combo"
     echoerr -e "\e[00m"
   fi
 }
 
 getAccountType() { 
-  user_type=`curl -F uid=$id $host/usertype 2>/dev/null`
+  user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
 }
 
 getAccountSpace() {
@@ -217,11 +216,11 @@ else
   if [ "$freeSpaceK" -gt 100 ]; then
     mkdir $HOME/.wsend
     #download wsend and put it in directory
-    curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend
+    wsDL=`curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend 2>/dev/null`
     chmod +x $HOME/.wsend/wsend
     #supporting files as well
-    curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
-    curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
+    rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
+    cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
   else
     echoerr "not enough free space to continue. Aborting";
     exit 1;
@@ -245,7 +244,7 @@ if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
   #ask server for account type
   #user_type=`curl -F uid=$id $host/usertype > >(tee /dev/null) 2> >(tee /dev/null >&2)`
-  user_type=`curl -F uid=$id $host/usertype 2>/dev/null`
+  user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
   echoerr "got account type, its: $user_type"
   if [ $user_type == 'free' ]; then
     freeInfoMessage
@@ -264,12 +263,21 @@ RETVAL=0
 loginBool="false"
 registerBool="false"
 fileSendBool="false"
+echoUsage="false"
 fileOrDirToSend=$1
+
+if [ $1 ]; then
+  firstArg=$1
+else
+  echoUsage="true"
+fi
 
 while test -n "$1"; do
   case "$1" in
-   "") 
-      echo "Usage: $0 [-p|--preprocess] [-i|--image]"
+   '') 
+      echo "Usage: $0 [-l|--login] [-r|--register]"
+      echo "or send a file, example:"
+      echo "wsend file.txt"
       exit 1
       ;;
    --login|-l)
@@ -328,3 +336,12 @@ if [ "$fileSendBool" == "true" ]; then
   fi
 fi
 
+if [ "$echoUsage" == "true" ]; then
+  echoerr -e "\e[01;31m"
+  echoerr "error:   "
+  echoerr "error:   Usage: $0 [-l|--login] [-r|--register] [file]"
+  echoerr "error:   or send a file, example:"
+  echoerr "error:   wsend file.txt"
+  echoerr "error:   "
+  echoerr -e "\e[00m"
+fi
