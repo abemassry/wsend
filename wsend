@@ -211,6 +211,7 @@ fi
 # check to see if directory exists
 if [ -d "$HOME/.wsend" ]; then
   wsend_dir="$HOME/.wsend"
+  #add in version check here
 else
   # if not, install
   if [ "$freeSpaceK" -gt 100 ]; then
@@ -287,7 +288,6 @@ while test -n "$1"; do
       shift
       ;;
    --register|-r)
-      registerBool="true"
       loginBool="false"
       fileSendBool="false"
       shift
@@ -319,8 +319,6 @@ if [ "$fileSendBool" == "true" ]; then
    echo "something to go here"
   else
     fileToSend=$fileOrDirToSend
-    echoerr "uid:$id"
-    urlOutput=''
     fileToSendSize=$(stat -c%s "$fileToSend")
     getAccountSpace
     if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
@@ -330,7 +328,6 @@ if [ "$fileSendBool" == "true" ]; then
     else
       #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
       curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-      echo $urlOutput
       echo $curlReturn
     fi
   fi
