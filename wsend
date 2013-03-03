@@ -32,7 +32,6 @@ freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 echoerr() { 
   echo "$@" 1>&2; 
 }
-echoerr "echoerr works"
 bashInstall () {
  if [ -e "$HOME/.bashrc" ]; then
    als_set=`grep "alias wsend=" $HOME/.bashrc`
@@ -95,7 +94,9 @@ registerInfoMessage () {
   echoerr "info:    It appears you aren't registered"
   echoerr "info:    Registration is free and comes with 2GB of storage space"
   echoerr "info:    Plus get 1G of space for every friend you refer"
+  echoerr "info:    "
   echoerr "info:    Sign up now with: wsend --register"
+  echoerr "info:    "
   echoerr "info:    unregistered accounts are limited to 200MB"
   echoerr "info:    your unregistered transfer will now continue"
   echoerr "info:    "
@@ -107,7 +108,9 @@ freeInfoMessage () {
   echoerr "info:    "
   echoerr "info:    free accounts are limited to 2GB files"
   echoerr "info:    for more space refer friends with: "
+  echoerr "info:    "
   echoerr "info:    wsend --refer friend@example.com"
+  echoerr "info:    "
   echoerr "info:    your free transfer will now continue"
   echoerr "info:    "
   echoerr -e "\e[00m"
@@ -119,22 +122,25 @@ unregisteredSignUp () {
   echoerr "info:    creating unregistered account"
   echoerr "info:    Registration is free and comes with 2GB of storage space"
   echoerr "info:    Plus get 1G of space for every friend you refer"
+  echoerr "info:    "
   echoerr "info:    Sign up now with: wsend --register"
+  echoerr "info:    "
   echoerr "info:    unregistered accounts are limited to 200MB"
   echoerr "info:    your unregistered transfer will now continue"
   echoerr "info:    "
   echoerr -e "\e[00m"
   unregCurlReturnVal=`curl -F "start=1" $host/createunreg 2>/dev/null`
   echo "$unregCurlReturnVal" > $HOME/.wsend/.id
-  echoerr "unregCurlReturnVal: $unregCurlReturnVal"
-  echoerr " "
+  id=$unregCurlReturnVal
 }
 
 notEnoughSpaceErr () {
   echoerr -e "\e[01;31m"
   echoerr "error:   "
   echoerr "error:   not enough space in your account for this transfer"
+  echoerr "info:    "
   echoerr "error:   you can register with: wsend --register,"
+  echoerr "info:    "
   echoerr "error:   send referrals with wsend --refer friend@example.com, or"
   echoerr "error:   upgrade to a paid account at https://wsend.net"
   echoerr "error:   "
@@ -259,7 +265,6 @@ if [ -e "$HOME/.wsend/.id" ]; then
   #ask server for account type
   #user_type=`curl -F uid=$id $host/usertype > >(tee /dev/null) 2> >(tee /dev/null >&2)`
   user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
-  echoerr "got account type, its: $user_type"
   if [ $user_type == 'free' ]; then
     freeInfoMessage
   elif [ $user_type == 'unregistered' ]; then
@@ -268,7 +273,17 @@ if [ -e "$HOME/.wsend/.id" ]; then
     unregisteredSignUp
   fi
 else
-  echoerr "signing up unregistered"
+  echoerr -e "\e[01;36m"
+  echoerr "info:    "
+  echoerr "info:    Installing and signing up for the first time"
+  echoerr "info:    with an unregistered account"
+  echoerr "info:    if you already have an account you can log in with:"
+  echoerr "info:    "
+  echoerr "info:    wsend --login"
+  echoerr "info:    "
+  echoerr "info:    your transfer will continue"
+  echoerr "info:    "
+  echoerr -e "\e[00m"
   unregisteredSignUp
   getAccountType
 fi
@@ -305,6 +320,12 @@ while test -n "$1"; do
       fileSendBool="false"
       shift
       ;;
+   --refer)
+      referBool="true"
+      loginBool="false"
+      fileSendBool="false"
+      shift
+      ;;
     *)
       fileSendBool="true"
       loginBool="false"
@@ -320,6 +341,10 @@ fi
 
 if [ "$registerBool" == "true" ]; then
   register
+fi
+
+if [ "$referBool" == "true" ]; then
+  refer
 fi
 
 #exit $RETVAL
@@ -349,7 +374,7 @@ fi
 if [ "$echoUsage" == "true" ]; then
   echoerr -e "\e[01;31m"
   echoerr "error:   "
-  echoerr "error:   Usage: $0 [-l|--login] [-r|--register] [file]"
+  echoerr "error:   Usage: $0 [-l|--login] [-r|--register] [--refer] [file]"
   echoerr "error:   or send a file, example:"
   echoerr "error:   wsend file.txt"
   echoerr "error:   "
