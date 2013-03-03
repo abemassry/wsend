@@ -234,6 +234,7 @@ else
     #supporting files as well
     rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
     cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
+    newLatestVersionDL=`curl -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
   else
     echoerr "not enough free space to continue. Aborting";
     exit 1;
