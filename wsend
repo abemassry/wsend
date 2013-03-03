@@ -196,6 +196,12 @@ login() {
   fi
 }
 
+refer() {
+  echoerr -e "\e[01;36m"
+  echoerr "info:    referring a friend"
+  echoerr -e "\e[00m"
+}
+
 getAccountType() { 
   user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
 }
