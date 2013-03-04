@@ -111,6 +111,10 @@ freeInfoMessage () {
   echoerr "info:    "
   echoerr "info:    wsend --refer friend@example.com"
   echoerr "info:    "
+  echoerr "info:    or purchase space at: "
+  echoerr "info:    https://wsend.net"
+  echoerr "info:    and get up to 10GB files"
+  echoerr "info:    "
   echoerr "info:    your free transfer will now continue"
   echoerr "info:    "
   echoerr -e "\e[00m"
@@ -200,6 +204,7 @@ refer() {
   echoerr -e "\e[01;36m"
   echoerr "info:    referring a friend"
   echoerr -e "\e[00m"
+  referEmailStatus=`curl -F "email=$friendEmail" -F "id=$id" $host/refer_cli 2>/dev/null`
 }
 
 getAccountType() { 
@@ -302,6 +307,7 @@ fi
 RETVAL=0
 loginBool="false"
 registerBool="false"
+referBool="false"
 fileSendBool="false"
 echoUsage="false"
 fileOrDirToSend=$1
@@ -314,33 +320,34 @@ fi
 
 while test -n "$1"; do
   case "$1" in
-   '') 
-      echo "Usage: $0 [-l|--login] [-r|--register]"
-      echo "or send a file, example:"
-      echo "wsend file.txt"
-      exit 1
-      ;;
    --login|-l)
       loginBool="true"
       registerBool="false"
+      referBool="false"
       fileSendBool="false"
       shift
       ;;
    --register|-r)
+      registerBool="true"
       loginBool="false"
       fileSendBool="false"
+      referBool="false"
       shift
       ;;
    --refer)
       referBool="true"
       loginBool="false"
+      registerBool="false"
       fileSendBool="false"
+      friendEmail=$2
+      shift
       shift
       ;;
     *)
       fileSendBool="true"
       loginBool="false"
       registerBool="false"
+      referBool="false"
       shift
       ;;
   esac
@@ -385,9 +392,10 @@ fi
 if [ "$echoUsage" == "true" ]; then
   echoerr -e "\e[01;31m"
   echoerr "error:   "
-  echoerr "error:   Usage: $0 [-l|--login] [-r|--register] [--refer] [file]"
+  echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
+  echoerr "error:   Usage: [--refer friend@example.com] [file]"
   echoerr "error:   or send a file, example:"
-  echoerr "error:   wsend file.txt"
+  echoerr "error:   $0 file.txt"
   echoerr "error:   "
   echoerr -e "\e[00m"
 fi
