@@ -203,8 +203,18 @@ login() {
 refer() {
   echoerr -e "\e[01;36m"
   echoerr "info:    referring a friend"
-  echoerr -e "\e[00m"
+  echoerr -ne "\e[00m"
   referEmailStatus=`curl -F "email=$friendEmail" -F "id=$id" $host/refer_cli 2>/dev/null`
+  if [ $referEmailStatus == "success" ]; then 
+    echoerr -e "\e[01;36m"
+    echoerr "info:    friend referred successfully"
+    echoerr -e "\e[00m"
+  else
+    echoerr -e "\e[01;31m"
+    echoerr "error:   something went wrong with the referral process";
+    echoerr -e "\e[00m"
+  fi
+    
 }
 
 getAccountType() { 
