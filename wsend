@@ -80,10 +80,10 @@ zshInstall () {
      #do nothing
      true
    else
-     alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+     echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
    fi
  else
-   alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
+   echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
  fi
 }
 
