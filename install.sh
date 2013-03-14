@@ -121,23 +121,23 @@ else
   if [ $SHELL == "/bin/bash" ]; then
     bashInstall
     echo "enter this to use the wsend command:"
-    echo "alias wsend='$HOME/.wsend/wsend"
+    echo "alias wsend='$HOME/.wsend/wsend'"
   elif [ $SHELL == "/bin/csh" ]; then
     cshInstall
     echo "enter this to use the wsend command:"
-    echo "alias wsend '$HOME/.wsend/wsend"
+    echo "alias wsend '$HOME/.wsend/wsend'"
   elif [ $SHELL == "/bin/tcsh" ]; then
     cshInstall
     echo "enter this to use the wsend command:"
-    echo "alias wsend '$HOME/.wsend/wsend"
+    echo "alias wsend '$HOME/.wsend/wsend'"
   elif [ $SHELL == "/bin/ksh" ]; then
     kshInstall
     echo "enter this to use the wsend command:"
-    echo "alias wsend='$HOME/.wsend/wsend"
+    echo "alias wsend='$HOME/.wsend/wsend'"
   elif [ $SHELL == "/bin/zsh" ]; then
     zshInstall
     echo "enter this to use the wsend command:"
-    echo "alias -g wsend='$HOME/.wsend/wsend"
+    echo "alias -g wsend='$HOME/.wsend/wsend'"
   fi # install done
 fi # check for installation done
 echo ''
