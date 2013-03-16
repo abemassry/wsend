@@ -61,7 +61,7 @@ Note: This install command appends the alias to your .bashrc or equivalent
  
 
 ##API
-The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense that the only transport method that is used is POST.
+The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense that the only transport method that is used is HTTP POST.
 
 To get a user id:
 
@@ -73,13 +73,63 @@ To send a file:
 
     curl -F "uid=$id" -F "filehandle=@$fileToSend" https://wsend.net/upload_cli
     
-Where $id is the id from the previous request and $fileToSend is the file you would like to send. 
+Where `$id` is the id from the previous request and `$fileToSend` is the file you would like to send.
+
+To see if the user has storage space available to send this file:
+
+	curl -F "uid=$id" -F "size=$fileToSendSize" https://wsend.net/userspaceavailable
+    
+
+Where `$fileToSendSize` is the filesize in bytes.
 
 To register a user:
 
-	curl -F "uid=$id" -F "email=$entered_email" -F "password=$password" https://wsend.net/register_cli
+	curl -F "uid=$id" -F "email=$email" -F "password=$password" https://wsend.net/register_cli
     
-You want to protect the password from showing up anywhere as security measure.
+You want to protect the password from showing up anywhere as security measure.  For the wsend command line script the password is not echoed and passed directly as a variable.
+
+To log in a user:
+
+	curl -F "email=$email" -F "password=$passw" https://wsend.net/login_cli
+    
+
+##FAQ
+
+ 1. Q: Why did you program this in Bash wasn't that painful? Bash isn't meant to do these things, you could have used python with pip, nodejs with npm, or ruby with rubygems.
+ 
+ 	A: While it was painful we wanted this script to be ubiquitous as possible and bash was installed on all of our *nix machines.  We do have plans to write this in the languages you mention and will work towards this in the future.  If you would like to write a client in one of these languages it would be something we would both appreciate and support.
+    
+ 2. Q: When are the Enthusiast and Hero accounts going to become available?
+ 
+ 	A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space.  We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment.  We do not want to offer services that we can't fully 100% support until we are ready to.
+
+ 3. Q: I had an unregistered 200MB account.  Can I get a listing of my files?
+ 
+	A:  If you register through the command line and then log into https://wsend.net you sould be able to get a listing of all of the files you have uploaded.
+
+ 4. Q: But I don't want to register, can't you list my files on the command line with a wsend --ls or some such?
+ 
+ 	A: While command line account management is definitely in the works, we would really prefer it if you registered so you can make sure a file is actually yours before deleting.
+
+ 5. Q: I have an unregistered account, why is my file not loading?
+
+	A: We remove files from unregistered accounts when they become 30 days old or space is needed on the server whichever comes first.
+
+ 6. Q: I have a free account, why are my files missing?
+
+	A: We remove files from free accounts when they become 30 days old or space is needed on the server whichever comes first.
+
+ 7. Q: But why, that doesn't seem right, no other service does this?
+
+	A: The wsend program and service is primarily provided for sending files. We have to maintain the best service possible for paying users, once the paying user-base grows we can support more benefits for the unregistered and free accounts.  This service is not meant to compete with other services that store files for free, it can be used as a quick and easy way to send files.
+
+ 8. Q: Can I use the wsend script to interface with another web service?
+
+	A: By all means, its GPL licensed and you can adapt it to whatever service you would like or create your own.
+
+ 9. Q: I have a problem but it is not listed here, who should I ask?
+
+	A: While we will try to respond to all requests, you can contact us at https://wsend.net/about If you are a paying user we will definitely respond and will not rest till your problem is resolved.  Just fill out the contact form with your email that is registered to your paid account.  Paid accounts are so important to us because it not only keeps the lights on and the hard drives spinning, it validates what we are doing and it says you support us, you support the community, and you support an open internet where everyone can exchange ideas.  You are also joining us in contributing to something larger than ourselves.
 
 	
 
