@@ -61,7 +61,27 @@ Note: This install command appends the alias to your .bashrc or equivalent
  
 
 ##API
-The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense.
+The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense that the only transport method that is used is POST.
+
+To get a user id:
+
+    curl -F "start=1" https://wsend.net/createunreg
+    
+This should be saved to a file or a database
+
+To send a file:
+
+    curl -F "uid=$id" -F "filehandle=@$fileToSend" https://wsend.net/upload_cli
+    
+Where $id is the id from the previous request and $fileToSend is the file you would like to send. 
+
+To register a user:
+
+	curl -F "uid=$id" -F "email=$entered_email" -F "password=$password" https://wsend.net/register_cli
+    
+You want to protect the password from showing up anywhere as security measure.
+
+	
 
 ### Help
 
