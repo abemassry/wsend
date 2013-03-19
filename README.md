@@ -103,31 +103,34 @@ To log in a user:
  
  	A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space.  We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment.  We do not want to offer services that we can't fully 100% support until we are ready to.
 
- 3. Q: I had an unregistered 200MB account.  Can I get a listing of my files?
+ 3. Q: What is the max filesize?
+ 	A: For the Unregistered Account it is 200MB, for the Free account it is 2GB, for the Paid accounts it is 10GB.
+ 
+ 4. Q: I had an unregistered 200MB account.  Can I get a listing of my files?
  
 	A:  If you register through the command line and then log into https://wsend.net you sould be able to get a listing of all of the files you have uploaded.
 
- 4. Q: But I don't want to register, can't you list my files on the command line with a wsend --ls or some such?
+ 5. Q: But I don't want to register, can't you list my files on the command line with a wsend --ls or some such?
  
  	A: While command line account management is definitely in the works, we would really prefer it if you registered so you can make sure a file is actually yours before deleting.
 
- 5. Q: I have an unregistered account, why is my file not loading?
+ 6. Q: I have an unregistered account, why is my file not loading?
 
 	A: We remove files from unregistered accounts when they become 30 days old or space is needed on the server whichever comes first.
 
- 6. Q: I have a free account, why are my files missing?
+ 7. Q: I have a free account, why are my files missing?
 
 	A: We remove files from free accounts when they become 30 days old or space is needed on the server whichever comes first.
 
- 7. Q: But why, that doesn't seem right, no other service does this?
+ 8. Q: But why, that doesn't seem right, no other service does this?
 
 	A: The wsend program and service is primarily provided for sending files. We have to maintain the best service possible for paying users, once the paying user-base grows we can support more benefits for the unregistered and free accounts.  This service is not meant to compete with other services that store files for free, it can be used as a quick and easy way to send files.
 
- 8. Q: Can I use the wsend script to interface with another web service?
+ 9. Q: Can I use the wsend script to interface with another web service?
 
 	A: By all means, its GPL licensed and you can adapt it to whatever service you would like or create your own.
 
- 9. Q: I have a problem but it is not listed here, who should I ask?
+ 10. Q: I have a problem but it is not listed here, who should I ask?
 
 	A: While we will try to respond to all requests, you can contact us at https://wsend.net/about If you are a paying user we will definitely respond and will not rest till your problem is resolved.  Just fill out the contact form with your email that is registered to your paid account.  Paid accounts are so important to us because it not only keeps the lights on and the hard drives spinning, it validates what we are doing and it says you support us, you support the community, and you support an open internet where everyone can exchange ideas.  You are also joining us in contributing to something larger than ourselves.
 
