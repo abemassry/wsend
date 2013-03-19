@@ -104,6 +104,7 @@ To log in a user:
  	A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space.  We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment.  We do not want to offer services that we can't fully 100% support until we are ready to.
 
  3. Q: What is the max filesize?
+
  	A: For the Unregistered Account it is 200MB, for the Free account it is 2GB, for the Paid accounts it is 10GB.
  
  4. Q: I had an unregistered 200MB account.  Can I get a listing of my files?
