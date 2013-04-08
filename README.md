@@ -90,7 +90,7 @@ You want to protect the password from showing up anywhere as security measure.  
 
 To log in a user:
 
-	curl -F "email=$email" -F "password=$passw" https://wsend.net/login_cli
+	curl -F "email=$email" -F "password=$password" https://wsend.net/login_cli
     
 
 ##FAQ
@@ -143,7 +143,7 @@ To log in a user:
 
 ### Help
 
-If you find wsend difficult to use, please open up a [Github issue](https://github.com/nodejitsu/jitsu/issues) or if you see an area that can be improved send a pull request! 
+If you find wsend difficult to use, please open up a [Github issue](https://github.com/abemassry/wsend/issues) or if you see an area that can be improved send a pull request! 
 
 #### ~.wsend/ directory
 
