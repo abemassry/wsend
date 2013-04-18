@@ -21,11 +21,11 @@ curl_installed=`curl --version 2>&1`
 protocol='http'
 site='wsend.net'
 #port='8000'
-if [ "$port" ]; then
-  host=$protocol'://'$site':'$port
-else
+#if [ "$port" ]; then
+#  host=$protocol'://'$site':'$port
+#else
   host=$protocol'://'$site
-fi
+#fi
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
 
 echoerr() { 
