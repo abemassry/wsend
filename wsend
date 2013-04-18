@@ -19,9 +19,8 @@
 
 curl_installed=`curl --version 2>&1`
 protocol='http'
-site='dev-tw.massindustries.org'
-port='8000'
-page='/upload'
+site='wsend.net'
+#port='8000'
 if [ "$port" ]; then
   host=$protocol'://'$site':'$port
 else
@@ -381,8 +380,21 @@ fi
 
 if [ "$fileSendBool" == "true" ]; then
   if [ -d $fileOrDirToSend ]; then
-   writeSomethingHere=true
-   echo "something to go here"
+    fileToSendSize=`du -s Downloads/ | awk {'print $1'}`
+    fileToSendSize=$fileToSendSize * 1024
+    getAccountSpace
+    if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+      notEnoughSpaceErr
+    else
+      
+      if [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+        filesizeTooLarge
+      else
+        #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
+        curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
+        echo $curlReturn
+      fi
+    fi
   else
     fileToSend=$fileOrDirToSend
     fileToSendSize=$(stat -c%s "$fileToSend")
