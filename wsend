@@ -18,7 +18,7 @@
 #
 
 curl_installed=`curl --version 2>&1`
-protocol='http'
+protocol='https'
 site='wsend.net'
 #port='8000'
 #if [ "$port" ]; then
