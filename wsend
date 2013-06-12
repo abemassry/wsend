@@ -242,7 +242,7 @@ if [ -d "$HOME/.wsend" ]; then
   #check version
   installedVersion=`cat $wsend_dir/version`
   latestVersion=`curl https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
-  if [ $installedVersion != $latestVersion ]; then
+  if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    "
     echoerr "info:    new version detected, auto updating"
