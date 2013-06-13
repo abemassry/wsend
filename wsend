@@ -26,7 +26,7 @@ site='wsend.net'
 host=$protocol'://'$site
 #fi
 freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
-
+clientOS=`uname`
 echoerr() { 
   echo "$@" 1>&2; 
 }
@@ -396,7 +396,11 @@ if [ "$fileSendBool" == "true" ]; then
     fi
   else
     fileToSend=$fileOrDirToSend
-    fileToSendSize=$(stat -c%s "$fileToSend")
+    if [ "$clientOS" == "Darwin" ]; then
+      fileToSendSize=$(stat -f %z "$fileToSend")
+    else
+      fileToSendSize=$(stat -c%s "$fileToSend")
+    fi
     getAccountSpace
     if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
       notEnoughSpaceErr
