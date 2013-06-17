@@ -18,6 +18,7 @@ Note: This install command appends the alias to your .bashrc or equivalent
 ## Or if you're trying to remember it
 
     wget https://wsend.net/wsend
+    chmod +x wsend
     ./wsend file.txt
 
 Your first file is sent and wsend had been installed.
