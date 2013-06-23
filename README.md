@@ -21,7 +21,7 @@ Note: This install command appends the alias to your .bashrc or equivalent
     chmod +x wsend
     ./wsend file.txt
 
-Your first file is sent and wsend had been installed.
+Your first file is sent and wsend has been installed.
 
 ## Features
 
