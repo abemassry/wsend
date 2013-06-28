@@ -287,7 +287,8 @@ else
   elif [ $SHELL == "/bin/zsh" ]; then
     zshInstall
   fi #install done
-fi #check for installation fin
+fi 
+#check for installation fin
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
