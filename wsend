@@ -209,7 +209,7 @@ getAccountSpace() {
 }
 
 refer() {
-  if [[ $user_type != 'unregistered' && $user_type != 'unknown' ]]; then
+  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
@@ -288,7 +288,7 @@ else
     zshInstall
   fi #install done
 fi #check for installation fin
-  #check to see if user is registered
+#check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
   id=`cat $HOME/.wsend/.id`
   #ask server for account type
