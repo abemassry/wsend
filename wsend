@@ -209,7 +209,7 @@ getAccountSpace() {
 }
 
 refer() {
-  if [ $user_type != 'unregistered' && $user_type != 'unknown' ]; then
+  if [[ $user_type != 'unregistered' && $user_type != 'unknown' ]]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
