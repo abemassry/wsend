@@ -198,22 +198,6 @@ login() {
   fi
 }
 
-refer() {
-  echoerr -e "\033[01;36m"
-  echoerr "info:    referring a friend"
-  echoerr -ne "\e[00m"
-  referEmailStatus=`curl -F "email=$friendEmail" -F "id=$id" $host/refer_cli 2>/dev/null`
-  if [ $referEmailStatus == "success" ]; then 
-    echoerr -e "\033[01;36m"
-    echoerr "info:    friend referred successfully"
-    echoerr -e "\033[00m"
-  else
-    echoerr -e "\033[01;31m"
-    echoerr "error:   something went wrong with the referral process";
-    echoerr -e "\033[00m"
-  fi
-    
-}
 
 getAccountType() { 
   user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
@@ -224,6 +208,27 @@ getAccountSpace() {
   accountSize=`curl -F "uid=$id" $host/userspace 2>/dev/null`
 }
 
+refer() {
+  if [ $user_type != 'unregistered' && $user_type != 'unknown' ]; then
+    echoerr -e "\033[01;36m"
+    echoerr "info:    referring a friend"
+    echoerr -ne "\e[00m"
+    referEmailStatus=`curl -F "email=$friendEmail" -F "id=$id" $host/refer_cli 2>/dev/null`
+    if [ $referEmailStatus == "success" ]; then 
+      echoerr -e "\033[01;36m"
+      echoerr "info:    friend referred successfully"
+      echoerr -e "\033[00m"
+    else
+      echoerr -e "\033[01;31m"
+      echoerr "error:   something went wrong with the referral process";
+      echoerr -e "\033[00m"
+    fi
+  else
+    echoerr -e "\033[01;31m"
+    echoerr "error:   referrals available to registered accounts";
+    echoerr -e "\033[00m"
+  fi
+}
 
 if [ "$curl_installed" ]; then
   #continue
