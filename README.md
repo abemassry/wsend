@@ -3,7 +3,7 @@
 
 ## Overview
 
-[wsend](https://github.com/abemassry/wsend) is a [Command Line Tool (CLI)](http://en.wikipedia.org/wiki/Command-line_interface) for sending files. It's open-source and easy to use. [We've](https://massindsutries.org) designed `wsend` to be suitable for command line beginners and well seasoned users alike.
+[wsend](https://github.com/abemassry/wsend) is a [Command Line Tool (CLI)](http://en.wikipedia.org/wiki/Command-line_interface) for sending files. It's open-source and easy to use. [We've](http://www.massindsutries.org) designed `wsend` to be suitable for command line beginners and well seasoned users alike.
 
 `wsend` requires `bash` and `curl`. And if you've ever run into this problem: http://xkcd.com/949/
 
