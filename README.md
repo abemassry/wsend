@@ -59,6 +59,11 @@ Your first file is sent and wsend has been installed.
    
      wsend --refer friend@example.com
 
+   *Get a referral link to send to people*
+   
+     wsend --refer-link
+     
+
 ## Pricing 
 
 | Account                               | Space     | Price                |
