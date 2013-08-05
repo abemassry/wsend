@@ -457,6 +457,7 @@ if [ "$echoUsage" == "true" ]; then
   echoerr "error:   "
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
   echoerr "error:   Usage: [--refer friend@example.com]"
+  echoerr "error:   Usage: [--refer-link]"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "
