@@ -59,13 +59,15 @@ Your first file is sent and wsend has been installed.
    
      wsend --refer friend@example.com
 
-## Pricing
+## Pricing 
 
- - Unregistered (Anonymous) Account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 200MB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Free
- - Free Account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2GB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Free
- - Supporter Paid Account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10GB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$10/year or $1/month
- - Enthusiast Paid Account (coming soon)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~~75GB~~ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $30/year or $3/month
- - Hero Paid Account (coming soon)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~~100GB~~ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $50/year or $5/month
+| Account                               | Space     | Price                |
+|---------------------------------------|-----------|----------------------|
+| Unregistered (Anonymous) Account      | 200MB     | Free                 |
+| Free Account                          | 2GB       | Free                 |
+| Supporter Paid Account                | 10GB      | $10/year or $1/month |
+| Enthusiast Paid Account (coming soon) | ~~75GB~~  | $30/year or $3/month |
+| Hero Paid Account (coming soon)       | ~~100GB~~ | $50/year or $5/month |
  
 
 ##API
