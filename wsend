@@ -230,6 +230,22 @@ refer() {
   fi
 }
 
+referLink() {
+  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+    echoerr -e "\033[01;36m"
+    echoerr "info:    getting referral link"
+    echoerr " "
+    echoerr -ne "\e[00m"
+    referLinkUrl=`curl -F "id=$id" $host/referlink_cli 2>/dev/null`
+    echo $referLinkUrl
+  else
+    echoerr -e "\033[01;31m"
+    echoerr "error:   referrals available to registered accounts";
+    echoerr -e "\033[00m"
+  fi
+  
+}
+
 if [ "$curl_installed" ]; then
   #continue
   true
@@ -322,6 +338,7 @@ RETVAL=0
 loginBool="false"
 registerBool="false"
 referBool="false"
+referLinkBool="false"
 fileSendBool="false"
 echoUsage="false"
 fileOrDirToSend=$1
@@ -336,6 +353,7 @@ while test -n "$1"; do
   case "$1" in
    --login|-l)
       loginBool="true"
+      referLinkBool="false"
       registerBool="false"
       referBool="false"
       fileSendBool="false"
@@ -343,6 +361,7 @@ while test -n "$1"; do
       ;;
    --register|-r)
       registerBool="true"
+      referLinkBool="false"
       loginBool="false"
       fileSendBool="false"
       referBool="false"
@@ -350,11 +369,21 @@ while test -n "$1"; do
       ;;
    --refer)
       referBool="true"
+      referLinkBool="false"
       loginBool="false"
       registerBool="false"
       fileSendBool="false"
       friendEmail=$2
       shift
+      shift
+      ;;
+   --refer-link)
+      referLinkBool="true"
+      loginBool="false"
+      referBool="false"
+      registerBool="false"
+      fileSendBool="false"
+      friendEmail=$2
       shift
       ;;
     *)
@@ -379,8 +408,11 @@ if [ "$referBool" == "true" ]; then
   refer
 fi
 
-#exit $RETVAL
+if [ "$referLinkBool" == "true" ]; then
+  referLink
+fi
 
+#exit $RETVAL
 
 
 if [ "$fileSendBool" == "true" ]; then
@@ -424,7 +456,7 @@ if [ "$echoUsage" == "true" ]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   "
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
-  echoerr "error:   Usage: [--refer friend@example.com] [file]"
+  echoerr "error:   Usage: [--refer friend@example.com]"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "
