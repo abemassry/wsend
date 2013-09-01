@@ -43,7 +43,7 @@ Your first file is sent and wsend has been installed.
 
      wsend file.txt
 
-   *Send a file in an email to your friend*
+   *Send a file in an email to your friend (if you have the mail command set up)*
 
      wsend logfile.log | mail -s "Here was that log file you wanted" friend@example.com
 
@@ -58,6 +58,11 @@ Your first file is sent and wsend has been installed.
    *Refer a friend (receive 1GB for you and friend)*
    
      wsend --refer friend@example.com
+
+   *Get a referral link to send to people*
+   
+     wsend --refer-link
+     
 
 ## Pricing 
 
