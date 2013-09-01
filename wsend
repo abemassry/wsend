@@ -38,9 +38,11 @@ bashInstall () {
      true
    else
      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
    fi
  else
    echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
  fi
 }
 cshInstall () {
