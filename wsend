@@ -343,7 +343,7 @@ referBool="false"
 referLinkBool="false"
 fileSendBool="false"
 echoUsage="false"
-fileOrDirToSend=$1
+fileOrDirToSend="$1"
 
 if [ $1 ]; then
   firstArg=$1
