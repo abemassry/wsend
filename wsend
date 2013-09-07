@@ -418,7 +418,7 @@ fi
 
 
 if [ "$fileSendBool" == "true" ]; then
-  if [ -d $fileOrDirToSend ]; then
+  if [ -d "$fileOrDirToSend" ]; then
     pass=1
     #fileToSendSize=`du -s Downloads/ | awk {'print $1'}`
     #fileToSendSize=$fileToSendSize * 1024
