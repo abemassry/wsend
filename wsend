@@ -418,41 +418,34 @@ fi
 
 
 if [ "$fileSendBool" == "true" ]; then
-  if [ -d "$fileOrDirToSend" ]; then
-    pass=1
-    #fileToSendSize=`du -s Downloads/ | awk {'print $1'}`
-    #fileToSendSize=$fileToSendSize * 1024
-    #getAccountSpace
-    #if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-    #  notEnoughSpaceErr
-    #else
-    #  
-    #  if [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-    #    filesizeTooLarge
-    #  else
-    #    #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
-    #    curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-    #    echo $curlReturn
-    #  fi
-    #fi
-  else
-    fileToSend=$fileOrDirToSend
-    if [ "$clientOS" == "Darwin" ]; then
-      fileToSendSize=$(stat -f %z "$fileToSend")
-    else
-      fileToSendSize=$(stat -c%s "$fileToSend")
-    fi
-    getAccountSpace
-    if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-      notEnoughSpaceErr
-    elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-      filesizeTooLarge
-    else
-      #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
-      curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-      echo $curlReturn
-    fi
-  fi
+	if [ -d "$fileOrDirToSend" ]; then
+			#we want to send a directory, so make a compressed archive
+			tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
+			fileToSend="$fileOrDirToSend.tar.bz2"
+	elif [ -e "$fileOrDirToSend" ]; then
+			fileToSend=$fileOrDirToSend
+	fi
+
+	if [ "$clientOS" == "Darwin" ]; then
+			fileToSendSize=$(stat -f %z "$fileToSend")
+	else
+			fileToSendSize=$(stat -c%s "$fileToSend")
+	fi
+
+	getAccountSpace
+	if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+			notEnoughSpaceErr
+	elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+			filesizeTooLarge
+	else
+			curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
+			echo $curlReturn
+	fi
+
+	if [ -d "$fileOrDirToSend" ]; then
+			#remove our temporary file
+			rm "$fileToSend"
+	fi
 fi
 
 if [ "$echoUsage" == "true" ]; then
