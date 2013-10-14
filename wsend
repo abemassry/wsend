@@ -16,7 +16,7 @@
 #
 #
 
-curl_installed=`curl --version 2>&1`
+curl_installed=$(curl --version)
 protocol='https'
 site='wsend.net'
 #port='8000'
