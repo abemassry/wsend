@@ -217,10 +217,7 @@ referLink() {
   
 }
 
-if [ "$curl_installed" ]; then
-  #continue
-  true
-else
+if [[ ! $curl_installed ]]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   curl is required but it is not installed. Aborting";
   echoerr "error:   For ubuntu please run: sudo apt-get install curl";
@@ -314,9 +311,7 @@ fileSendBool="false"
 echoUsage="false"
 fileOrDirToSend="$1"
 
-if [ "$1" ]; then
-  firstArg="$1"
-else
+if [ $# == 0 ]; then
   echoUsage="true"
 fi
 
@@ -383,8 +378,6 @@ if [ "$referLinkBool" == "true" ]; then
   referLink
 fi
 
-#exit $RETVAL
-
 
 if [ "$fileSendBool" == "true" ]; then
 	if [ -d "$fileOrDirToSend" ]; then
@@ -417,7 +410,7 @@ if [ "$fileSendBool" == "true" ]; then
 	fi
 fi
 
-if [ "$echoUsage" == "true" ]; then
+if [ $echoUsage == "true" ]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   "
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
