@@ -157,7 +157,9 @@ login() {
   read -p "Password: " passw; echo
   stty echo
   loggedInID=$(curl -s -F "email=$entered_email" -F "password=$passw" $host/login_cli)
-  if [[ $loggedInID ]]; then
+
+  #seem to be always a false test. As you return an id or error string, condition was always true
+  if [[ "$loggedInID" != "wrong username or password" ]]; then
     echo $loggedInID > $HOME/.wsend/.id
     echoerr -e "\033[01;36m"
     echoerr "info:    logged in sucessfully"
@@ -392,6 +394,7 @@ if [ "$fileSendBool" == "true" ]; then
 	fi
 
 	getAccountSpace
+	echo "Note: $accountSizeAvailable : $accountSize"
 	if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
 			notEnoughSpaceErr
 	elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
