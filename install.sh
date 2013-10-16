@@ -16,104 +16,74 @@
 #
 #
 #
-curl_installed=`curl --version 2>&1`
-freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
-bashInstall () {
- if [ -e "$HOME/.bashrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.bashrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
- fi
+curl_installed=$(curl --version 2>&1)
+freeSpaceK=$(df -k $HOME | tail -n 1| awk '{print $4}')
+echoerr() { 
+  echo "$@" 1>&2; 
 }
+
+bashInstall () {
+#not sure that put alias in both bash_profile and bashrc is a good idea.
+  if [[ ! -e "$HOME/.bashrc" || ! $(grep "alias wsend=" $HOME/.bashrc) ]]; then
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
+  fi
+}
+
 cshInstall () {
- if [ -e "$HOME/.cshrc" ]; then
-   als_set=`grep "alias wsend " $HOME/.cshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-   fi
- else
-   echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
- fi
+  if [[ ! -e "$HOME/.cshrc" || ! $(grep  "alias wsend=" $HOME/.cshrc) ]]
+  then
+		echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+	fi
 }
 
 kshInstall () {
- if [ -e "$HOME/.kshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.kshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
- fi
+  if [[ ! -e "$HOME/.kshrc"  || ! $(grep "alias wsend=" $HOME/.kshrc) ]]; then
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
+  fi
 }
 
 zshInstall () {
- if [ -e "$HOME/.zshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.zshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
-   fi
- else
-   alias -g wsend="$HOME/.wsend/wsend" >> $HOME/.zshrc
- fi
+  if [[ ! -e "$HOME/.zshrc" || ! $(grep "alias wsend=" $HOME/.zshrc) ]]; then
+      echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
+  fi
 }
-if [ "$curl_installed" ]; then
-  #continue
-  true
-else
+
+downloadLastVersion() {
+	wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+    chmod +x $HOME/.wsend/wsend
+    #supporting files as well
+	rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+    cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+	newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
+}
+
+if [[ ! $curl_installed ]]; then
   echoerr -e "\e[01;31m"
   echoerr "error:   curl is required but it is not installed. Aborting";
   echoerr "error:   For ubuntu please run: sudo apt-get install curl";
   echoerr -e "\e[00m"
   exit 1;
 fi
-# check to see if directory exists
+
 if [ -d "$HOME/.wsend" ]; then
   wsend_dir="$HOME/.wsend"
   #check version
-  installedVersion=`cat $wsend_dir/version`
-  latestVersion=`curl https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
-  if [ $installedVersion != $latestVersion ]; then
-    echoerr -e "\e[01;36m"
+  installedVersion=$(cat $wsend_dir/version)
+  latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
+  if [ "$installedVersion" != "$latestVersion" ]; then
+    echoerr -e "\033[01;36m"
     echoerr "info:    "
     echoerr "info:    new version detected, auto updating"
     echoerr "info:    "
-    echoerr -e "\e[00m"
-    wsDL=`curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend 2>/dev/null`
-    chmod +x $HOME/.wsend/wsend
-    #supporting files as well
-    rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
-    cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
-    newLatestVersion=`curl -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
+    echoerr -e "\033[00m"
+	downloadLastVersion
   fi
 else
   # if not, install
   if [ "$freeSpaceK" -gt 100 ]; then
     mkdir $HOME/.wsend
-    #download wsend and put it in directory
-    wsDL=`curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend 2>/dev/null`
-    chmod +x $HOME/.wsend/wsend
-    #supporting files as well
-    rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
-    cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
-    newLatestVersionDL=`curl -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
+	downloadLastVersion
   else
     echoerr "not enough free space to continue. Aborting";
     exit 1;
