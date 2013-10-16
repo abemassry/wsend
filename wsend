@@ -381,6 +381,7 @@ fi
 if [ "$fileSendBool" == "true" ]; then
 	if [ -d "$fileOrDirToSend" ]; then
 			#we want to send a directory, so make a compressed archive
+                        fileOrDirToSend=${fileOrDirToSend%/}
 			tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
 			fileToSend="$fileOrDirToSend.tar.bz2"
 	elif [ -e "$fileOrDirToSend" ]; then
@@ -394,7 +395,7 @@ if [ "$fileSendBool" == "true" ]; then
 	fi
 
 	getAccountSpace
-	echo "Note: $accountSizeAvailable : $accountSize"
+	#echo "Note: $accountSizeAvailable : $accountSize"
 	if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
 			notEnoughSpaceErr
 	elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
