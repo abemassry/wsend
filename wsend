@@ -16,7 +16,7 @@
 #
 #
 
-curl_installed=`curl --version 2>&1`
+curl_installed=$(curl --version)
 protocol='https'
 site='wsend.net'
 #port='8000'
@@ -25,66 +25,35 @@ site='wsend.net'
 #else
 host=$protocol'://'$site
 #fi
-freeSpaceK=`df -k $HOME | tail -n 1 | head -n 1 | awk '{print $4}'`
-clientOS=`uname`
+freeSpaceK=$(df -k $HOME | tail -n 1 | awk '{print $4}')
+clientOS=$(uname)
 echoerr() { 
   echo "$@" 1>&2; 
 }
 bashInstall () {
- if [ -e "$HOME/.bashrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.bashrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
- fi
+#not sure that put alias in both bash_profile and bashrc is a good idea.
+  if [[ ! -e "$HOME/.bashrc" || ! $(grep "alias wsend=" $HOME/.bashrc) ]]; then
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
+  fi
 }
 cshInstall () {
- if [ -e "$HOME/.cshrc" ]; then
-   als_set=`grep "alias wsend " $HOME/.cshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-   fi
- else
-   echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
- fi
+  if [[ ! -e "$HOME/.cshrc" || ! $(grep  "alias wsend=" $HOME/.cshrc) ]]
+  then
+		echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+	fi
 }
 
 kshInstall () {
- if [ -e "$HOME/.kshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.kshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
-   fi
- else
-   echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
- fi
+  if [[ ! -e "$HOME/.kshrc"  || ! $(grep "alias wsend=" $HOME/.kshrc) ]]; then
+      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
+  fi
 }
 
 zshInstall () {
- if [ -e "$HOME/.zshrc" ]; then
-   als_set=`grep "alias wsend=" $HOME/.zshrc`
-   if [ "$als_set" ]; then
-     #do nothing
-     true
-   else
-     echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
-   fi
- else
-   echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
- fi
+  if [[ ! -e "$HOME/.zshrc" || ! $(grep "alias wsend=" $HOME/.zshrc) ]]; then
+      echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
+  fi
 }
 
 
@@ -133,8 +102,8 @@ unregisteredSignUp () {
   echoerr "info:    your unregistered transfer will now continue"
   echoerr "info:    "
   echoerr -e "\033[00m"
-  unregCurlReturnVal=`curl -F "start=1" $host/createunreg 2>/dev/null`
-  echo "$unregCurlReturnVal" > $HOME/.wsend/.id
+  unregCurlReturnVal=$(curl -s -F "start=1" $host/createunreg)
+  echo $unregCurlReturnVal > $HOME/.wsend/.id
   id=$unregCurlReturnVal
 }
 
@@ -171,8 +140,8 @@ register() {
   stty -echo
   read -p "Password: " passw; echo
   stty echo
-  uidFromFile=`cat $HOME/.wsend/.id`
-  registrationMessage=`curl -F "uid=$uidFromFile" -F "email=$entered_email" -F "password=$passw" $host/register_cli 2>/dev/null`
+  uidFromFile=$(cat $HOME/.wsend/.id)
+  registrationMessage=$(curl -s -F "uid=$uidFromFile" -F "email=$entered_email" -F "password=$passw" $host/register_cli)
   echoerr -e "\033[01;36m"
   echoerr "info:    message from server:"
   echoerr "info:    $registrationMessage"
@@ -187,9 +156,11 @@ login() {
   stty -echo
   read -p "Password: " passw; echo
   stty echo
-  loggedInID=`curl -F "email=$entered_email" -F "password=$passw" $host/login_cli 2>/dev/null`
-  if [ $loggedInID ]; then
-    echo "$loggedInID" > $HOME/.wsend/.id
+  loggedInID=$(curl -s -F "email=$entered_email" -F "password=$passw" $host/login_cli)
+
+  #seem to be always a false test. As you return an id or error string, condition was always true
+  if [[ "$loggedInID" != "wrong username or password" ]]; then
+    echo $loggedInID > $HOME/.wsend/.id
     echoerr -e "\033[01;36m"
     echoerr "info:    logged in sucessfully"
     echoerr -e "\033[00m"
@@ -202,12 +173,12 @@ login() {
 
 
 getAccountType() { 
-  user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
+	user_type=$(curl -s -F "uid=$id" $host/usertype)
 }
 
 getAccountSpace() {
-  accountSizeAvailable=`curl -F "uid=$id" -F "size=$fileToSendSize" $host/userspaceavailable 2>/dev/null`
-  accountSize=`curl -F "uid=$id" $host/userspace 2>/dev/null`
+  accountSizeAvailable=$(curl -s -F "uid=$id" -F "size=$fileToSendSize" $host/userspaceavailable)
+  accountSize=$(curl -s -F "uid=$id" $host/userspace)
 }
 
 refer() {
@@ -215,7 +186,7 @@ refer() {
     echoerr -e "\033[01;36m"
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
-    referEmailStatus=`curl -F "email=$friendEmail" -F "id=$id" $host/refer_cli 2>/dev/null`
+	referEmailStatus=$(curl -s -F "email=$friendEmail" -F "id=$id" $host/refer_cli)
     if [ $referEmailStatus == "success" ]; then 
       echoerr -e "\033[01;36m"
       echoerr "info:    friend referred successfully"
@@ -238,7 +209,7 @@ referLink() {
     echoerr "info:    getting referral link"
     echoerr " "
     echoerr -ne "\e[00m"
-    referLinkUrl=`curl -F "id=$id" $host/referlink_cli 2>/dev/null`
+	referLinkUrl=$(curl -s -F "id=$id" $host/referlink_cli)
     echo $referLinkUrl
   else
     echoerr -e "\033[01;31m"
@@ -248,10 +219,16 @@ referLink() {
   
 }
 
-if [ "$curl_installed" ]; then
-  #continue
-  true
-else
+downloadLastVersion() {
+	wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+    chmod +x $HOME/.wsend/wsend
+    #supporting files as well
+	rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+    cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+	newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
+}
+
+if [[ ! $curl_installed ]]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   curl is required but it is not installed. Aborting";
   echoerr "error:   For ubuntu please run: sudo apt-get install curl";
@@ -262,32 +239,21 @@ fi
 if [ -d "$HOME/.wsend" ]; then
   wsend_dir="$HOME/.wsend"
   #check version
-  installedVersion=`cat $wsend_dir/version`
-  latestVersion=`curl https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
+  installedVersion=$(cat $wsend_dir/version)
+  latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
   if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    "
     echoerr "info:    new version detected, auto updating"
     echoerr "info:    "
     echoerr -e "\033[00m"
-    wsDL=`curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend 2>/dev/null`
-    chmod +x $HOME/.wsend/wsend
-    #supporting files as well
-    rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
-    cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
-    newLatestVersion=`curl -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
+	downloadLastVersion
   fi
 else
   # if not, install
   if [ "$freeSpaceK" -gt 100 ]; then
     mkdir $HOME/.wsend
-    #download wsend and put it in directory
-    wsDL=`curl -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend 2>/dev/null`
-    chmod +x $HOME/.wsend/wsend
-    #supporting files as well
-    rmDL=`curl -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md 2>/dev/null`
-    cpDL=`curl -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING 2>/dev/null`
-    newLatestVersionDL=`curl -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version 2>/dev/null`
+	downloadLastVersion
   else
     echoerr "not enough free space to continue. Aborting";
     exit 1;
@@ -309,10 +275,9 @@ fi
 #check for installation fin
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
-  id=`cat $HOME/.wsend/.id`
+	id=$(cat $HOME/.wsend/.id)
   #ask server for account type
-  #user_type=`curl -F uid=$id $host/usertype > >(tee /dev/null) 2> >(tee /dev/null >&2)`
-  user_type=`curl -F "uid=$id" $host/usertype 2>/dev/null`
+	user_type=$(curl -s -F "uid=$id" $host/usertype)
   if [ $user_type == 'free' ]; then
     freeInfoMessage
   elif [ $user_type == 'unregistered' ]; then
@@ -345,9 +310,7 @@ fileSendBool="false"
 echoUsage="false"
 fileOrDirToSend="$1"
 
-if [ "$1" ]; then
-  firstArg="$1"
-else
+if [ $# == 0 ]; then
   echoUsage="true"
 fi
 
@@ -398,64 +361,56 @@ while test -n "$1"; do
   esac
 done
 
-if [ "$loginBool" == "true" ]; then
+if [ $loginBool == "true" ]; then
   login
 fi
 
-if [ "$registerBool" == "true" ]; then
+if [ $registerBool == "true" ]; then
   register
 fi
 
-if [ "$referBool" == "true" ]; then
+if [ $referBool == "true" ]; then
   refer
 fi
 
-if [ "$referLinkBool" == "true" ]; then
+if [ $referLinkBool == "true" ]; then
   referLink
 fi
 
-#exit $RETVAL
-
 
 if [ "$fileSendBool" == "true" ]; then
-  if [ -d "$fileOrDirToSend" ]; then
-    pass=1
-    #fileToSendSize=`du -s Downloads/ | awk {'print $1'}`
-    #fileToSendSize=$fileToSendSize * 1024
-    #getAccountSpace
-    #if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-    #  notEnoughSpaceErr
-    #else
-    #  
-    #  if [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-    #    filesizeTooLarge
-    #  else
-    #    #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
-    #    curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-    #    echo $curlReturn
-    #  fi
-    #fi
-  else
-    fileToSend=$fileOrDirToSend
-    if [ "$clientOS" == "Darwin" ]; then
-      fileToSendSize=$(stat -f %z "$fileToSend")
-    else
-      fileToSendSize=$(stat -c%s "$fileToSend")
-    fi
-    getAccountSpace
-    if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-      notEnoughSpaceErr
-    elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-      filesizeTooLarge
-    else
-      #curlReturn=`curl -F "filehandle=@$fileToSend;uid=$id" $host/upload_cli > >(tee $urlOutput) 2> >(tee /dev/null >&2)`
-      curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-      echo $curlReturn
-    fi
-  fi
+	if [ -d "$fileOrDirToSend" ]; then
+			#we want to send a directory, so make a compressed archive
+			tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
+			fileToSend="$fileOrDirToSend.tar.bz2"
+	elif [ -e "$fileOrDirToSend" ]; then
+			fileToSend=$fileOrDirToSend
+	fi
+
+	if [ "$clientOS" == "Darwin" ]; then
+			fileToSendSize=$(stat -f %z "$fileToSend")
+	else
+			fileToSendSize=$(stat -c%s "$fileToSend")
+	fi
+
+	getAccountSpace
+	echo "Note: $accountSizeAvailable : $accountSize"
+	if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+			notEnoughSpaceErr
+	elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+			filesizeTooLarge
+	else
+			curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
+			echo $curlReturn
+	fi
+
+	if [ -d "$fileOrDirToSend" ]; then
+			#remove our temporary file
+			rm "$fileToSend"
+	fi
 fi
 
-if [ "$echoUsage" == "true" ]; then
+if [ $echoUsage == "true" ]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   "
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
