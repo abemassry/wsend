@@ -314,13 +314,24 @@ referLink() {
   
 }
 
+list() {
+	if [ -e $wsend_base/.list ]
+	then
+		while read upload; do
+			echo ${upload%|*} = ${upload#*|}
+		done < $wsend_base/.list
+	else
+		echo "You have no uploads at this time"
+	fi
+}
+
 downloadLastVersion() {
-  wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-  chmod +x $wsend_base/wsend
-  #supporting files as well
-  rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-  cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-  newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
+	wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+	chmod +x $wsend_base/wsend
+	#supporting files as well
+	rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+	cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+	newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
 }
 
 if [[ ! $curl_installed ]]; then
@@ -332,9 +343,8 @@ if [[ ! $curl_installed ]]; then
 fi
 # check to see if directory exists
 if [ -d "$wsend_base" ]; then
-  wsend_dir="$wsend_base"
   #check version
-  installedVersion=$(cat $wsend_dir/version)
+  installedVersion=$(cat $wsend_base/version)
   latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
   if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
@@ -445,6 +455,15 @@ while test -n "$1"; do
       shift
       shift
       ;;
+	 --list)
+      loginBool="false"
+      referLinkBool="false"
+      registerBool="false"
+      referBool="false"
+      fileSendBool="false"
+	  list
+      shift
+	  ;;
     *)
       fileSendBool="true"
       shift
