@@ -420,10 +420,10 @@ if [ $deleteBool == "true" ]; then
 fi
 
 
-if [ "$fileSendBool" == "true" ]; then
+if [[ "$fileSendBool" == "true" &&  -e "$fileOrDirToSend" ]]; then
 	if [ -d "$fileOrDirToSend" ]; then
 			#we want to send a directory, so make a compressed archive
-                        fileOrDirToSend=${fileOrDirToSend%/}
+			fileOrDirToSend=${fileOrDirToSend%/}
 			tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
 			fileToSend="$fileOrDirToSend.tar.bz2"
 	elif [ -e "$fileOrDirToSend" ]; then
@@ -451,6 +451,9 @@ if [ "$fileSendBool" == "true" ]; then
 			#remove our temporary file
 			rm "$fileToSend"
 	fi
+elif [ "$fileSendBool" == "true" ]; then
+		#want to send file, but source doesn't exist
+		echoUsage="true"
 fi
 
 if [ $echoUsage == "true" ]; then
