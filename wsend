@@ -209,6 +209,13 @@ deleteFile() {
       echoerr -e "\033[01;36m"
       echoerr "info:    file deleted"
       echoerr -e "\033[00m"
+
+      if [ -e $wsend_base/.list ]
+      then
+      #escape dot and slash from unique url before matching it in list file
+          escaped_link=$(echo $link | sed 's/\([./]\)/\\\1/g')
+          sed -i "/$escaped_link/d" $wsend_base/.list
+      fi
     else
       echoerr -e "\033[01;31m"
       echoerr "error:   something went wrong with the delete process";
@@ -252,6 +259,7 @@ sendFile() {
         else
             #simply create a new one
             curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+            echo "$curlReturn|$fileToSend" >> "$wsend_base/.list"
         fi
         echo $curlReturn
     fi
@@ -315,23 +323,25 @@ referLink() {
 }
 
 list() {
-	if [ -e $wsend_base/.list ]
-	then
-		while read upload; do
-			echo ${upload%|*} = ${upload#*|}
-		done < $wsend_base/.list
-	else
-		echo "You have no uploads at this time"
-	fi
+  if [[ -s $wsend_base/.list ]]
+  then
+     i=1
+    while read upload; do
+      echo "[$i] ${upload#*|} -> ${upload%|*}"
+      i=$(( i + 1))
+    done < $wsend_base/.list
+  else
+    echo "You have no uploads at this time"
+  fi
 }
 
 downloadLastVersion() {
-	wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-	chmod +x $wsend_base/wsend
-	#supporting files as well
-	rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-	cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-	newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
+  wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+  chmod +x $wsend_base/wsend
+  #supporting files as well
+  rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+  cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+  newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
 }
 
 if [[ ! $curl_installed ]]; then
@@ -455,15 +465,10 @@ while test -n "$1"; do
       shift
       shift
       ;;
-	 --list)
-      loginBool="false"
-      referLinkBool="false"
-      registerBool="false"
-      referBool="false"
-      fileSendBool="false"
-	  list
+   --list)
+      list
       shift
-	  ;;
+    ;;
     *)
       fileSendBool="true"
       shift
