@@ -187,7 +187,7 @@ refer() {
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
 	referEmailStatus=$(curl -s -F "email=$friendEmail" -F "id=$id" $host/refer_cli)
-    if [ $referEmailStatus == "success" ]; then 
+    if [ "$referEmailStatus" == "success" ]; then 
       echoerr -e "\033[01;36m"
       echoerr "info:    friend referred successfully"
       echoerr -e "\033[00m"
@@ -201,6 +201,28 @@ refer() {
     echoerr "error:   referrals available to registered accounts";
     echoerr -e "\033[00m"
   fi
+}
+
+deleteFile() {
+  getAccountType
+  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+    deleteStatus=$(curl -s -F "link=$link" -F "uid=$id" $host/delete_cli)
+    if [ "$deleteStatus" == "file deleted" ]; then 
+      echoerr -e "\033[01;36m"
+      echoerr "info:    file deleted"
+      echoerr -e "\033[00m"
+    else
+      echoerr -e "\033[01;31m"
+      echoerr "error:   something went wrong with the delete process";
+      echoerr "error:   server: $deleteStatus";
+      echoerr -e "\033[00m"
+    fi
+  else
+    echoerr -e "\033[01;31m"
+    echoerr "error:   deleting available to registered accounts";
+    echoerr -e "\033[00m"
+  fi
+  
 }
 
 referLink() {
@@ -308,6 +330,7 @@ referBool="false"
 referLinkBool="false"
 fileSendBool="false"
 echoUsage="false"
+deleteBool="false"
 fileOrDirToSend="$1"
 
 if [ $# == 0 ]; then
@@ -321,6 +344,7 @@ while test -n "$1"; do
       referLinkBool="false"
       registerBool="false"
       referBool="false"
+      deleteBool="false"
       fileSendBool="false"
       shift
       ;;
@@ -330,6 +354,7 @@ while test -n "$1"; do
       loginBool="false"
       fileSendBool="false"
       referBool="false"
+      deleteBool="false"
       shift
       ;;
    --refer)
@@ -337,6 +362,7 @@ while test -n "$1"; do
       referLinkBool="false"
       loginBool="false"
       registerBool="false"
+      deleteBool="false"
       fileSendBool="false"
       friendEmail=$2
       shift
@@ -347,14 +373,26 @@ while test -n "$1"; do
       loginBool="false"
       referBool="false"
       registerBool="false"
+      deleteBool="false"
       fileSendBool="false"
-      friendEmail=$2
+      shift
+      ;;
+   --rm|-x)
+      registerBool="false"
+      referLinkBool="false"
+      loginBool="false"
+      fileSendBool="false"
+      referBool="false"
+      deleteBool="true"
+      link=$2
+      shift
       shift
       ;;
     *)
       fileSendBool="true"
       loginBool="false"
       registerBool="false"
+      deleteBool="false"
       referBool="false"
       shift
       ;;
@@ -375,6 +413,10 @@ fi
 
 if [ $referLinkBool == "true" ]; then
   referLink
+fi
+
+if [ $deleteBool == "true" ]; then
+  deleteFile
 fi
 
 
