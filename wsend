@@ -233,6 +233,11 @@ updateFile() {
       echoerr "error:   need link and file";
       echoerr -e "\033[00m"
     else
+      # we dont want the user to have to remember the order
+      # of link first or file first
+      # so we parse the args and determine which is which
+      # we only care that one is a link and the other is a
+      # file
       if echo $firstArg | grep --quiet http; then
         link=$firstArg
         fileOrDirToSend=$secondArg
