@@ -281,7 +281,9 @@ updateFile() {
 		  # so we parse the args and determine which is which
 		  # we only care that one is a link and the other is a
 		  # file
-		  if echo $firstArg | grep --quiet http; then
+
+		  #previous version just match on http, prefer to match on url protocol http[s]://
+		  if  [[ $firstArg =~ ^https*:// ]]; then
 			  link=$firstArg
 			  fileOrDirToSend=$secondArg
 		  else
