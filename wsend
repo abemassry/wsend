@@ -405,65 +405,29 @@ while test -n "$1"; do
   case "$1" in
    --login|-l)
       loginBool="true"
-      referLinkBool="false"
-      registerBool="false"
-      referBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       shift
       ;;
    --register|-r)
       registerBool="true"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
-      deleteBool="false"
-      updateBool="false"
       shift
       ;;
    --refer)
       referBool="true"
-      referLinkBool="false"
-      loginBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       friendEmail=$2
       shift
       shift
       ;;
    --refer-link)
       referLinkBool="true"
-      loginBool="false"
-      referBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       shift
       ;;
    --rm|-x)
-      registerBool="false"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
       deleteBool="true"
-      updateBool="false"
       link=$2
       shift
       shift
       ;;
    --update|-u)
-      registerBool="false"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
-      deleteBool="false"
       updateBool="true"
       firstArg=$2
       secondArg=$3
@@ -473,12 +437,6 @@ while test -n "$1"; do
       ;;
     *)
       fileSendBool="true"
-      loginBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      referBool="false"
-      shift
       ;;
   esac
 done
