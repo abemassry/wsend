@@ -40,8 +40,8 @@ bashInstall () {
 cshInstall () {
   if [[ ! -e "$HOME/.cshrc" || ! $(grep  "alias wsend=" $HOME/.cshrc) ]]
   then
-		echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
-	fi
+    echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+  fi
 }
 
 kshInstall () {
@@ -173,7 +173,7 @@ login() {
 
 
 getAccountType() { 
-	user_type=$(curl -s -F "uid=$id" $host/usertype)
+  user_type=$(curl -s -F "uid=$id" $host/usertype)
 }
 
 getAccountSpace() {
@@ -186,7 +186,7 @@ refer() {
     echoerr -e "\033[01;36m"
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
-	referEmailStatus=$(curl -s -F "email=$friendEmail" -F "id=$id" $host/refer_cli)
+    referEmailStatus=$(curl -s -F "email=$friendEmail" -F "id=$id" $host/refer_cli)
     if [ "$referEmailStatus" == "success" ]; then 
       echoerr -e "\033[01;36m"
       echoerr "info:    friend referred successfully"
@@ -225,6 +225,49 @@ deleteFile() {
   
 }
 
+sendFile() {
+  if [[ -e "$fileOrDirToSend" ]]; then
+    if [ -d "$fileOrDirToSend" ]; then
+      #we want to send a directory, so make a compressed archive
+      fileOrDirToSend=${fileOrDirToSend%/}
+      tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
+      fileToSend="$fileOrDirToSend.tar.bz2"
+    elif [ -e "$fileOrDirToSend" ]; then
+      fileToSend=$fileOrDirToSend
+    fi
+
+    if [ "$clientOS" == "Darwin" ]; then
+      fileToSendSize=$(stat -f %z "$fileToSend")
+    else
+      fileToSendSize=$(stat -c%s "$fileToSend")
+    fi
+
+    getAccountSpace
+    if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+      notEnoughSpaceErr
+    elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+      filesizeTooLarge
+    else
+        if [[ $link ]]; then   
+            #link was provided, so update target link with file
+            curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
+        else
+            #simply create a new one
+            curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+        fi
+        echo $curlReturn
+    fi
+
+    if [ -d "$fileOrDirToSend" ]; then
+      #remove our temporary file
+      rm "$fileToSend"
+    fi
+  elif [ "$fileSendBool" == "true" ]; then
+    #want to send file, but source doesn't exist
+    echoUsage="true"
+  fi
+}
+
 updateFile() {
   getAccountType
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
@@ -238,48 +281,17 @@ updateFile() {
       # so we parse the args and determine which is which
       # we only care that one is a link and the other is a
       # file
-      if echo $firstArg | grep --quiet http; then
+
+      #previous version just match on http, prefer to match on url protocol http[s]://
+      if  [[ $firstArg =~ ^https*:// ]]; then
         link=$firstArg
         fileOrDirToSend=$secondArg
       else
         link=$secondArg
         fileOrDirToSend=$firstArg
       fi
-      if [[ -e "$fileOrDirToSend" ]]; then
-              if [ -d "$fileOrDirToSend" ]; then
-                              #we want to send a directory, so make a compressed archive
-                              fileOrDirToSend=${fileOrDirToSend%/}
-                              tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
-                              fileToSend="$fileOrDirToSend.tar.bz2"
-              elif [ -e "$fileOrDirToSend" ]; then
-                              fileToSend=$fileOrDirToSend
-              fi
 
-              if [ "$clientOS" == "Darwin" ]; then
-                              fileToSendSize=$(stat -f %z "$fileToSend")
-              else
-                              fileToSendSize=$(stat -c%s "$fileToSend")
-              fi
-
-              getAccountSpace
-              #echo "Note: $accountSizeAvailable : $accountSize"
-              if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-                              notEnoughSpaceErr
-              elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-                              filesizeTooLarge
-              else
-                              curlReturn=`curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli`
-                              echo $curlReturn
-              fi
-
-              if [ -d "$fileOrDirToSend" ]; then
-                              #remove our temporary file
-                              rm "$fileToSend"
-              fi
-      elif [ "$fileSendBool" == "true" ]; then
-                      #want to send file, but source doesn't exist
-                      echoUsage="true"
-      fi
+      sendFile
     fi
   else
     echoerr -e "\033[01;31m"
@@ -294,7 +306,7 @@ referLink() {
     echoerr "info:    getting referral link"
     echoerr " "
     echoerr -ne "\e[00m"
-	referLinkUrl=$(curl -s -F "id=$id" $host/referlink_cli)
+    referLinkUrl=$(curl -s -F "id=$id" $host/referlink_cli)
     echo $referLinkUrl
   else
     echoerr -e "\033[01;31m"
@@ -305,12 +317,12 @@ referLink() {
 }
 
 downloadLastVersion() {
-	wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-    chmod +x $HOME/.wsend/wsend
-    #supporting files as well
-	rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-    cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-	newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
+  wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+  chmod +x $HOME/.wsend/wsend
+  #supporting files as well
+  rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+  cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+  newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
 }
 
 if [[ ! $curl_installed ]]; then
@@ -332,13 +344,13 @@ if [ -d "$HOME/.wsend" ]; then
     echoerr "info:    new version detected, auto updating"
     echoerr "info:    "
     echoerr -e "\033[00m"
-	downloadLastVersion
+    downloadLastVersion
   fi
 else
   # if not, install
   if [ "$freeSpaceK" -gt 100 ]; then
     mkdir $HOME/.wsend
-	downloadLastVersion
+    downloadLastVersion
   else
     echoerr "not enough free space to continue. Aborting";
     exit 1;
@@ -360,9 +372,9 @@ fi
 #check for installation fin
 #check to see if user is registered
 if [ -e "$HOME/.wsend/.id" ]; then
-	id=$(cat $HOME/.wsend/.id)
+  id=$(cat $HOME/.wsend/.id)
   #ask server for account type
-	user_type=$(curl -s -F "uid=$id" $host/usertype)
+  user_type=$(curl -s -F "uid=$id" $host/usertype)
   if [ $user_type == 'free' ]; then
     freeInfoMessage
   elif [ $user_type == 'unregistered' ]; then
@@ -405,65 +417,29 @@ while test -n "$1"; do
   case "$1" in
    --login|-l)
       loginBool="true"
-      referLinkBool="false"
-      registerBool="false"
-      referBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       shift
       ;;
    --register|-r)
       registerBool="true"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
-      deleteBool="false"
-      updateBool="false"
       shift
       ;;
    --refer)
       referBool="true"
-      referLinkBool="false"
-      loginBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       friendEmail=$2
       shift
       shift
       ;;
    --refer-link)
       referLinkBool="true"
-      loginBool="false"
-      referBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      fileSendBool="false"
       shift
       ;;
    --rm|-x)
-      registerBool="false"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
       deleteBool="true"
-      updateBool="false"
       link=$2
       shift
       shift
       ;;
    --update|-u)
-      registerBool="false"
-      referLinkBool="false"
-      loginBool="false"
-      fileSendBool="false"
-      referBool="false"
-      deleteBool="false"
       updateBool="true"
       firstArg=$2
       secondArg=$3
@@ -473,11 +449,6 @@ while test -n "$1"; do
       ;;
     *)
       fileSendBool="true"
-      loginBool="false"
-      registerBool="false"
-      deleteBool="false"
-      updateBool="false"
-      referBool="false"
       shift
       ;;
   esac
@@ -507,41 +478,8 @@ if [ $updateBool == "true" ]; then
   updateFile
 fi
 
-
-if [[ "$fileSendBool" == "true" &&  -e "$fileOrDirToSend" ]]; then
-	if [ -d "$fileOrDirToSend" ]; then
-			#we want to send a directory, so make a compressed archive
-			fileOrDirToSend=${fileOrDirToSend%/}
-			tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
-			fileToSend="$fileOrDirToSend.tar.bz2"
-	elif [ -e "$fileOrDirToSend" ]; then
-			fileToSend=$fileOrDirToSend
-	fi
-
-	if [ "$clientOS" == "Darwin" ]; then
-			fileToSendSize=$(stat -f %z "$fileToSend")
-	else
-			fileToSendSize=$(stat -c%s "$fileToSend")
-	fi
-
-	getAccountSpace
-	#echo "Note: $accountSizeAvailable : $accountSize"
-	if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
-			notEnoughSpaceErr
-	elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
-			filesizeTooLarge
-	else
-			curlReturn=`curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli`
-			echo $curlReturn
-	fi
-
-	if [ -d "$fileOrDirToSend" ]; then
-			#remove our temporary file
-			rm "$fileToSend"
-	fi
-elif [ "$fileSendBool" == "true" ]; then
-		#want to send file, but source doesn't exist
-		echoUsage="true"
+if [ "$fileSendBool" == "true" ]; then
+    sendFile
 fi
 
 if [ $echoUsage == "true" ]; then
