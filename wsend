@@ -230,6 +230,16 @@ deleteFile() {
   
 }
 
+deleteByIndex() {
+  link=$(awk -v idx=$1 -F"|" 'FNR == idx { print $1 }' $wsend_base/.list)
+
+  if [ "$link" ]; then
+    deleteFile
+  else
+    echo "Invalid index. Check your local list with --list option"
+  fi
+}
+
 sendFile() {
   if [[ -e "$fileOrDirToSend" ]]; then
     if [ -d "$fileOrDirToSend" ]; then
@@ -454,6 +464,11 @@ while test -n "$1"; do
    --rm|-x)
       deleteBool="true"
       link=$2
+      shift
+      shift
+      ;;
+   --rm-index|-xi)
+      deleteByIndex $2
       shift
       shift
       ;;
