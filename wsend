@@ -354,6 +354,34 @@ downloadLastVersion() {
   newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
 }
 
+#As readlink is not available on all distro or OSX, provide a portable way to get an 
+#absolute path from a relative one.
+make_absolute() {
+  local ret=false
+  local rel_path=$1
+
+  if [[ ! -z $rel_path ]]; then
+    #strip eventual last slash
+    rel_path=${rel_path%/}
+    
+    if [ -z $rel_path ]; then
+      rel_path="/"
+    fi
+
+    base_name=${rel_path##*/}
+    rel_dir=${rel_path/$base_name}
+
+    if cd -P $rel_dir 2>/dev/null; then
+      #we jump in the directory
+      echo "$(pwd)/$base_name"
+      cd - 2>/dev/null #get back to OLD_PATH
+      ret=true
+    fi
+  fi
+
+  ret
+}
+
 if [[ ! $curl_installed ]]; then
   echoerr -e "\033[01;31m"
   echoerr "error:   curl is required but it is not installed. Aborting";
