@@ -230,8 +230,16 @@ deleteFile() {
   
 }
 
+link_from_index() {
+  awk -v idx=$1 -F"|" 'FNR == idx { print $1 }' $wsend_base/.list
+}
+
+filename_from_index() {
+  awk -v idx=$1 -F"|" 'FNR == idx { print $2 }' $wsend_base/.list
+}
+
 deleteByIndex() {
-  link=$(awk -v idx=$1 -F"|" 'FNR == idx { print $1 }' $wsend_base/.list)
+  link=$(link_from_index $1)
 
   if [ "$link" ]; then
     deleteFile
@@ -314,6 +322,17 @@ updateFile() {
     echoerr "error:   only registered and paid accounts can update files";
     echoerr -e "\033[00m"
   fi
+}
+
+#Update a file designated by its index in .list
+#Assume that the update as to be made with the absolute path store in the list entry
+updateFileByIndex() {
+  local link=$(link_from_index $1)
+  local filename=$(filename_from_index $1)
+
+  firstArg=$link
+  secondArg=$filename
+  updateFile
 }
 
 referLink() {
@@ -510,6 +529,11 @@ while test -n "$1"; do
       firstArg=$2
       secondArg=$3
       shift
+      shift
+      shift
+      ;;
+   --update-index|-ui)
+      updateFileByIndex $2
       shift
       shift
       ;;
