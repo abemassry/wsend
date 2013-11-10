@@ -589,6 +589,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [-x|--rm] <url>"
   echoerr "error:   Usage: [-xi|--rm-index] <idx>"
   echoerr "error:   Usage: [-u|--update] <url> <file>"
+  echoerr "error:   Usage: [-ui|--update-index] <idx>"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "
