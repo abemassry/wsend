@@ -269,7 +269,7 @@ sendFile() {
         else
             #simply create a new one
             curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
-            echo "$curlReturn|$fileToSend" >> "$wsend_base/.list"
+            echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
         fi
         echo $curlReturn
     fi
@@ -363,23 +363,28 @@ make_absolute() {
   if [[ ! -z $rel_path ]]; then
     #strip eventual last slash
     rel_path=${rel_path%/}
-    
-    if [ -z $rel_path ]; then
+
+    if [ "$rel_path" = "" ]; then
       rel_path="/"
     fi
 
     base_name=${rel_path##*/}
-    rel_dir=${rel_path/$base_name}
+    rel_dir=${rel_path%$base_name}
 
-    if cd -P $rel_dir 2>/dev/null; then
-      #we jump in the directory
-      echo "$(pwd)/$base_name"
-      cd - 2>/dev/null #get back to OLD_PATH
+    if cd -P "$rel_dir" 1>/dev/null; then
+      #we jump in the directory and use $PWD
+      if [[ $(pwd) = "/" ]]; then
+        echo "/$base_name"
+      else
+        echo "$(pwd)/$base_name"
+      fi
+
+      cd - 1>&2 > /dev/null #get back to OLD_PATH
       ret=true
     fi
   fi
 
-  ret
+  $ret
 }
 
 if [[ ! $curl_installed ]]; then
