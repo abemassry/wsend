@@ -390,6 +390,10 @@ make_absolute() {
     base_name=${rel_path##*/}
     rel_dir=${rel_path%$base_name}
 
+    if [[ $rel_dir = "" ]]; then
+        rel_dir="."
+    fi
+
     if cd -P "$rel_dir" 1>/dev/null; then
       #we jump in the directory and use $PWD
       if [[ $(pwd) = "/" ]]; then
