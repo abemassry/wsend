@@ -375,11 +375,11 @@ if [ -e "$HOME/.wsend/.id" ]; then
   id=$(cat $HOME/.wsend/.id)
   #ask server for account type
   user_type=$(curl -s -F "uid=$id" $host/usertype)
-  if [ $user_type == 'free' ]; then
+  if [ "$user_type" == 'free' ]; then
     freeInfoMessage
-  elif [ $user_type == 'unregistered' ]; then
+  elif [ "$user_type" == 'unregistered' ]; then
     registerInfoMessage
-  elif [ $user_type == 'unknown' ]; then
+  elif [ "$user_type" == 'unknown' ]; then
     unregisteredSignUp
   fi
 else
