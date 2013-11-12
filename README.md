@@ -63,6 +63,17 @@ Your first file is sent and wsend has been installed.
    
      wsend --refer-link
      
+   *List Local Files*
+   
+     wsend --list
+
+   *Delete Files*
+   
+     wsend --rm https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt
+
+   *Update Files*
+   
+     wsend --update https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt file.txt
 
 ## Pricing 
 
