@@ -586,6 +586,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
   echoerr "error:   Usage: [--refer friend@example.com]"
   echoerr "error:   Usage: [--refer-link]"
+  echoerr "error:   Usage: [--list]"
   echoerr "error:   Usage: [-x|--rm] <url>"
   echoerr "error:   Usage: [-xi|--rm-index] <idx>"
   echoerr "error:   Usage: [-u|--update] <url> <file>"
