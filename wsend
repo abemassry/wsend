@@ -19,40 +19,38 @@
 curl_installed=$(curl --version)
 protocol='https'
 site='wsend.net'
-#port='8000'
-#if [ "$port" ]; then
-#  host=$protocol'://'$site':'$port
-#else
 host=$protocol'://'$site
-#fi
 freeSpaceK=$(df -k $HOME | tail -n 1 | awk '{print $4}')
 clientOS=$(uname)
+wsend_base=$HOME/.wsend
+
 echoerr() { 
   echo "$@" 1>&2; 
 }
+
 bashInstall () {
 #not sure that put alias in both bash_profile and bashrc is a good idea.
   if [[ ! -e "$HOME/.bashrc" || ! $(grep "alias wsend=" $HOME/.bashrc) ]]; then
-      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bashrc
-      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.bash_profile
+      echo "alias wsend='$wsend_base/wsend'" >> $HOME/.bashrc
+      echo "alias wsend='$wsend_base/wsend'" >> $HOME/.bash_profile
   fi
 }
 cshInstall () {
   if [[ ! -e "$HOME/.cshrc" || ! $(grep  "alias wsend=" $HOME/.cshrc) ]]
   then
-    echo "alias wsend '$HOME/.wsend/wsend'" >> $HOME/.cshrc
+    echo "alias wsend '$wsend_base/wsend'" >> $HOME/.cshrc
   fi
 }
 
 kshInstall () {
   if [[ ! -e "$HOME/.kshrc"  || ! $(grep "alias wsend=" $HOME/.kshrc) ]]; then
-      echo "alias wsend='$HOME/.wsend/wsend'" >> $HOME/.kshrc
+      echo "alias wsend='$wsend_base/wsend'" >> $HOME/.kshrc
   fi
 }
 
 zshInstall () {
   if [[ ! -e "$HOME/.zshrc" || ! $(grep "alias wsend=" $HOME/.zshrc) ]]; then
-      echo "alias -g wsend='$HOME/.wsend/wsend'" >> $HOME/.zshrc
+      echo "alias -g wsend='$wsend_base/wsend'" >> $HOME/.zshrc
   fi
 }
 
@@ -103,7 +101,7 @@ unregisteredSignUp () {
   echoerr "info:    "
   echoerr -e "\033[00m"
   unregCurlReturnVal=$(curl -s -F "start=1" $host/createunreg)
-  echo $unregCurlReturnVal > $HOME/.wsend/.id
+  echo $unregCurlReturnVal > $wsend_base/.id
   id=$unregCurlReturnVal
 }
 
@@ -140,7 +138,7 @@ register() {
   stty -echo
   read -p "Password: " passw; echo
   stty echo
-  uidFromFile=$(cat $HOME/.wsend/.id)
+  uidFromFile=$(cat $wsend_base/.id)
   registrationMessage=$(curl -s -F "uid=$uidFromFile" -F "email=$entered_email" -F "password=$passw" $host/register_cli)
   echoerr -e "\033[01;36m"
   echoerr "info:    message from server:"
@@ -160,7 +158,7 @@ login() {
 
   #seem to be always a false test. As you return an id or error string, condition was always true
   if [[ "$loggedInID" != "wrong username or password" ]]; then
-    echo $loggedInID > $HOME/.wsend/.id
+    echo $loggedInID > $wsend_base/.id
     echoerr -e "\033[01;36m"
     echoerr "info:    logged in sucessfully"
     echoerr -e "\033[00m"
@@ -211,6 +209,13 @@ deleteFile() {
       echoerr -e "\033[01;36m"
       echoerr "info:    file deleted"
       echoerr -e "\033[00m"
+
+      if [ -e $wsend_base/.list ]
+      then
+      #escape dot and slash from unique url before matching it in list file
+          escaped_link=$(echo $link | sed 's/\([./]\)/\\\1/g')
+          sed -i "/$escaped_link/d" $wsend_base/.list
+      fi
     else
       echoerr -e "\033[01;31m"
       echoerr "error:   something went wrong with the delete process";
@@ -223,6 +228,24 @@ deleteFile() {
     echoerr -e "\033[00m"
   fi
   
+}
+
+link_from_index() {
+  awk -v idx=$1 -F"|" 'FNR == idx { print $1 }' $wsend_base/.list
+}
+
+filename_from_index() {
+  awk -v idx=$1 -F"|" 'FNR == idx { print $2 }' $wsend_base/.list
+}
+
+deleteByIndex() {
+  link=$(link_from_index $1)
+
+  if [ "$link" ]; then
+    deleteFile
+  else
+    echo "Invalid index. Check your local list with --list option"
+  fi
 }
 
 sendFile() {
@@ -254,6 +277,7 @@ sendFile() {
         else
             #simply create a new one
             curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+            echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
         fi
         echo $curlReturn
     fi
@@ -300,6 +324,17 @@ updateFile() {
   fi
 }
 
+#Update a file designated by its index in .list
+#Assume that the update as to be made with the absolute path store in the list entry
+updateFileByIndex() {
+  local link=$(link_from_index $1)
+  local filename=$(filename_from_index $1)
+
+  firstArg=$link
+  secondArg=$filename
+  updateFile
+}
+
 referLink() {
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
     echoerr -e "\033[01;36m"
@@ -316,13 +351,63 @@ referLink() {
   
 }
 
+list() {
+  if [[ -s $wsend_base/.list ]]
+  then
+     i=1
+    while read upload; do
+      echo "[$i] ${upload#*|} -> ${upload%|*}"
+      i=$(( i + 1))
+    done < $wsend_base/.list
+  else
+    echo "You have no uploads at this time"
+  fi
+}
+
 downloadLastVersion() {
-  wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-  chmod +x $HOME/.wsend/wsend
+  wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
+  chmod +x $wsend_base/wsend
   #supporting files as well
-  rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-  cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-  newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
+  rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
+  cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
+  newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
+}
+
+#As readlink is not available on all distro or OSX, provide a portable way to get an 
+#absolute path from a relative one.
+make_absolute() {
+  local ret=false
+  local rel_path=$1
+
+  if [[ ! -z $rel_path ]]; then
+    #strip eventual last slash
+    rel_path=${rel_path%/}
+
+    if [ "$rel_path" = "" ]; then
+      rel_path="/"
+    fi
+
+    base_name=${rel_path##*/}
+    rel_dir=${rel_path%$base_name}
+
+    if [[ $rel_dir = "" ]]; then
+        rel_dir="."
+    fi
+
+    if cd -P "$rel_dir" 1>/dev/null; then
+      #we jump in the directory and use $PWD
+      if [[ $(pwd) = "/" ]]; then
+        echo "/$base_name"
+      else
+        echo "$(pwd)/$base_name"
+      fi
+
+      cd - 1>&2 > /dev/null #get back to OLD_PATH
+      ret=true
+    fi
+  fi
+
+  $ret
 }
 
 if [[ ! $curl_installed ]]; then
@@ -333,10 +418,9 @@ if [[ ! $curl_installed ]]; then
   exit 1;
 fi
 # check to see if directory exists
-if [ -d "$HOME/.wsend" ]; then
-  wsend_dir="$HOME/.wsend"
+if [ -d "$wsend_base" ]; then
   #check version
-  installedVersion=$(cat $wsend_dir/version)
+  installedVersion=$(cat $wsend_base/version)
   latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
   if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
@@ -349,7 +433,7 @@ if [ -d "$HOME/.wsend" ]; then
 else
   # if not, install
   if [ "$freeSpaceK" -gt 100 ]; then
-    mkdir $HOME/.wsend
+    mkdir $wsend_base
     downloadLastVersion
   else
     echoerr "not enough free space to continue. Aborting";
@@ -371,8 +455,8 @@ else
 fi 
 #check for installation fin
 #check to see if user is registered
-if [ -e "$HOME/.wsend/.id" ]; then
-  id=$(cat $HOME/.wsend/.id)
+if [ -e "$wsend_base/.id" ]; then
+  id=$(cat $wsend_base/.id)
   #ask server for account type
   user_type=$(curl -s -F "uid=$id" $host/usertype)
   if [ $user_type == 'free' ]; then
@@ -439,6 +523,11 @@ while test -n "$1"; do
       shift
       shift
       ;;
+   --rm-index|-xi)
+      deleteByIndex $2
+      shift
+      shift
+      ;;
    --update|-u)
       updateBool="true"
       firstArg=$2
@@ -447,6 +536,15 @@ while test -n "$1"; do
       shift
       shift
       ;;
+   --update-index|-ui)
+      updateFileByIndex $2
+      shift
+      shift
+      ;;
+   --list)
+      list
+      shift
+    ;;
     *)
       fileSendBool="true"
       shift
@@ -489,7 +587,9 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [--refer friend@example.com]"
   echoerr "error:   Usage: [--refer-link]"
   echoerr "error:   Usage: [-x|--rm] <url>"
+  echoerr "error:   Usage: [-xi|--rm-index] <idx>"
   echoerr "error:   Usage: [-u|--update] <url> <file>"
+  echoerr "error:   Usage: [-ui|--update-index] <idx>"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "
