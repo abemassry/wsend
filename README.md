@@ -63,9 +63,13 @@ Your first file is sent and wsend has been installed.
    
      wsend --refer-link
      
-   *List Local Files*
+   *List Local Files (files that have been uploaded from this machine)*
    
-     wsend --list
+     wsend --list-local
+
+   *List Server Files (files stored on wsend.net)*
+   
+     wsend --list-server
 
    *Delete Files*
    
@@ -117,13 +121,16 @@ You want to protect the password from showing up anywhere as security measure.  
 To log in a user:
 
 	curl -F "email=$email" -F "password=$password" https://wsend.net/login_cli
-    
+
+To list files (returns a list in JSON):
+
+        curl -F "uid=$id" https://wsend.net/list_cli
 
 ##FAQ
 
  1. Q: Why did you program this in Bash wasn't that painful? Bash isn't meant to do these things, you could have used python with pip, nodejs with npm, or ruby with rubygems.
  
- 	A: While it was painful we wanted this script to be ubiquitous as possible and bash was installed on all of our *nix machines.  We do have plans to write this in the languages you mention and will work towards this in the future.  If you would like to write a client in one of these languages it would be something we would both appreciate and support.
+ 	A: While it was painful we wanted this script to be ubiquitous as possible and bash was installed on all of our *nix machines.  We do have plans to write this in the languages you mention and will work towards this in the future.  If you would like to write a client in one of these languages it would be something we would both appreciate and support. UPDATE: node-wsend available on npm
 
  2. Q: What about wput? Isn't that the opposite of wget?
  
@@ -143,7 +150,7 @@ To log in a user:
 
  6. Q: But I don't want to register, can't you list my files on the command line with a wsend --ls or some such?
  
- 	A: While command line account management is definitely in the works, we would really prefer it if you registered so you can make sure a file is actually yours before deleting.
+ 	A: While command line account management is definitely in the works, we would really prefer it if you registered so you can make sure a file is actually yours before deleting. UPDATE: wsend -ls works from the command line to list your files.  However you still need to register to use this command.
 
  7. Q: I have an unregistered account, why is my file not loading?
 
@@ -182,6 +189,10 @@ This file stores the version and wsend checks against the github repo to determi
 #### .id
 
 This file stores an identifier for the command line user
+
+#### .list
+
+This file stores a list of files that have been uploaded on this computer.
 
 #### README.md
 

@@ -364,6 +364,21 @@ list() {
   fi
 }
 
+listServer() {
+  getAccountType
+  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+    serverList=$(curl -s -F "uid=$id" $host/list_cli)
+    echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+    #echo $serverList | grep -Po '"filename":.*?[^\\]",' | tr "\"" " "
+  else
+    echoerr -e "\033[01;31m"
+    echoerr "error:   only registered and paid accounts can list files";
+    echoerr "error:   from the server";
+    echoerr -e "\033[00m"
+  fi
+
+}
+
 downloadLastVersion() {
   wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
   chmod +x $wsend_base/wsend
@@ -541,10 +556,14 @@ while test -n "$1"; do
       shift
       shift
       ;;
-   --list)
+   --list-local|-ll)
       list
       shift
-    ;;
+      ;;
+   --list-server|-ls)
+      listServer
+      shift
+      ;;
     *)
       fileSendBool="true"
       shift
@@ -577,7 +596,7 @@ if [ $updateBool == "true" ]; then
 fi
 
 if [ "$fileSendBool" == "true" ]; then
-    sendFile
+  sendFile
 fi
 
 if [ $echoUsage == "true" ]; then
@@ -586,7 +605,8 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: $0 [-l|--login] [-r|--register]"
   echoerr "error:   Usage: [--refer friend@example.com]"
   echoerr "error:   Usage: [--refer-link]"
-  echoerr "error:   Usage: [--list]"
+  echoerr "error:   Usage: [-ls|--list-server]"
+  echoerr "error:   Usage: [-ll|--list-local]"
   echoerr "error:   Usage: [-x|--rm] <url>"
   echoerr "error:   Usage: [-xi|--rm-index] <idx>"
   echoerr "error:   Usage: [-u|--update] <url> <file>"
