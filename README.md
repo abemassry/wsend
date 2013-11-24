@@ -101,7 +101,7 @@ This should be saved to a file or a database
 
 To send a file:
 
-    curl -F "uid=$id" -F "filehandle=@$fileToSend" https://wsend.net/upload_cli
+	curl -F "uid=$id" -F "filehandle=@$fileToSend" https://wsend.net/upload_cli
     
 Where `$id` is the id from the previous request and `$fileToSend` is the file you would like to send.
 
@@ -124,7 +124,13 @@ To log in a user:
 
 To list files (returns a list in JSON):
 
-        curl -F "uid=$id" https://wsend.net/list_cli
+	curl -F "uid=$id" https://wsend.net/list_cli
+
+To delete a file:
+
+	curl -F "link=$link" -F "uid=$id" $host/delete_cli
+
+Where $link is a wsend.net url pointing to the file
 
 ##FAQ
 
