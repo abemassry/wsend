@@ -50,12 +50,13 @@ zshInstall () {
 }
 
 downloadLastVersion() {
-	wsDL=$(curl -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-    chmod +x $HOME/.wsend/wsend
+	curl -L -s -o $HOME/.wsend/wsend https://raw.github.com/abemassry/wsend/master/wsend
+	chmod +x $HOME/.wsend/wsend
     #supporting files as well
-	rmDL=$(curl -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-    cpDL=$(curl -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-	newLatestVersion=$(curl -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version)
+	curl -L -s -o $HOME/.wsend/README.md https://raw.github.com/abemassry/wsend/master/README.md
+	curl -L -s -o $HOME/.wsend/COPYING https://raw.github.com/abemassry/wsend/master/COPYING
+	curl -L -s -o $HOME/.wsend/version https://raw.github.com/abemassry/wsend/master/version
+	curl -L -s -o $HOME/.wsend/update.sh https://raw.github.com/abemassry/wsend/master/update.sh
 }
 
 if [[ ! $curl_installed ]]; then
@@ -70,7 +71,7 @@ if [ -d "$HOME/.wsend" ]; then
   wsend_dir="$HOME/.wsend"
   #check version
   installedVersion=$(cat $wsend_dir/version)
-  latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
+  latestVersion=$(curl -L -s https://raw.github.com/abemassry/wsend/master/version)
   if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    "
