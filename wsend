@@ -384,12 +384,9 @@ listServer() {
 }
 
 downloadLastVersion() {
-  wsDL=$(curl -s -o $wsend_base/wsend https://raw.github.com/abemassry/wsend/master/wsend)
-  chmod +x $wsend_base/wsend
-  #supporting files as well
-  rmDL=$(curl -s -o $wsend_base/README.md https://raw.github.com/abemassry/wsend/master/README.md)
-  cpDL=$(curl -s -o $wsend_base/COPYING https://raw.github.com/abemassry/wsend/master/COPYING)
-  newLatestVersion=$(curl -s -o $wsend_base/version https://raw.github.com/abemassry/wsend/master/version)
+	curl -s -L -o "$wsend_base/update.sh" https://raw.github.com/abemassry/wsend/master/update.sh
+	bash "$wsend_base/update.sh" $@
+	exit 0
 }
 
 #As readlink is not available on all distro or OSX, provide a portable way to get an 
@@ -440,7 +437,7 @@ fi
 if [ -d "$wsend_base" ]; then
   #check version
   installedVersion=$(cat $wsend_base/version)
-  latestVersion=$(curl -s https://raw.github.com/abemassry/wsend/master/version)
+  latestVersion=$(curl -L -s https://raw.github.com/abemassry/wsend/master/version)
   if [ "$installedVersion" != "$latestVersion" ]; then
     echoerr -e "\033[01;36m"
     echoerr "info:    "
