@@ -11,7 +11,7 @@
 
 ## Two-line wsend install
 
-    wget https://raw.github.com/abemassry/wsend/master/install.sh -O - | bash
+    wget https://raw.githubusercontent.com/abemassry/wsend/master/install.sh -O - | bash
     alias wsend="~/.wsend/wsend"
 Note: This install command appends the alias to your .bashrc or equivalent
 
