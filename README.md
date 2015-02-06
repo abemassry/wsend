@@ -15,11 +15,13 @@
     alias wsend="~/.wsend/wsend"
 Note: This install command appends the alias to your .bashrc or equivalent
 
-## Or if you're trying to remember it
+## Or if you prefer the UNIX way
 
-    wget https://wsend.net/wsend
-    chmod +x wsend
-    ./wsend file.txt
+    mkdir -p ~/bin # just in case
+    wget https://wsend.net/wsend | ~/bin/wsend
+    chmod +x ~/bin/wsend
+    export PATH=$PATH:~/bin # also put that in your .zshenv or whatever
+    wsend file.txt
 
 Your first file is sent and wsend has been installed.
 
