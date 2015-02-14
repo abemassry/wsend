@@ -22,6 +22,12 @@ Note: This install command appends the alias to your .bashrc or equivalent
     chmod +x ~/bin/wsend
     export PATH=$PATH:~/bin # also put that in your .zshenv or whatever
     wsend file.txt
+    
+## For an easy way to remember
+    
+    wget https://wsend.net/wsend
+    chmod +x wsend
+    ./wsend file.txt
 
 Your first file is sent and wsend has been installed.
 
