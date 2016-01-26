@@ -222,4 +222,4 @@ The executable bash script, this can send files and also install the ~.wsend/ di
 
 
 
-#### (C) Copyright 2013, wsend.net
+#### (C) Copyright 2016, wsend.net
