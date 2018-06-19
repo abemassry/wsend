@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2016 Abraham Massry
+# Copyright 2018 Abraham Massry
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
@@ -100,7 +100,7 @@ unregisteredSignUp () {
   echoerr "info:    your unregistered transfer will now continue"
   echoerr "info:    "
   echoerr -e "\033[00m"
-  unregCurlReturnVal=$(curl -s -F "start=1" $host/createunreg)
+  unregCurlReturnVal=$(curl -s -X POST -d "start=1" $host/createunreg)
   echo $unregCurlReturnVal > $wsend_base/.id
   id=$unregCurlReturnVal
 }
@@ -139,7 +139,7 @@ register() {
   read -p "Password: " passw; echo
   stty echo
   uidFromFile=$(cat $wsend_base/.id)
-  registrationMessage=$(curl -s -F "uid=$uidFromFile" -F "email=$entered_email" -F "password=$passw" $host/register_cli)
+  registrationMessage=$(curl -s -X POST -d "uid=$uidFromFile" -d "email=$entered_email" -d "password=$passw" $host/register_cli)
   echoerr -e "\033[01;36m"
   echoerr "info:    message from server:"
   echoerr "info:    $registrationMessage"
@@ -154,7 +154,7 @@ login() {
   stty -echo
   read -p "Password: " passw; echo
   stty echo
-  loggedInID=$(curl -s -F "email=$entered_email" -F "password=$passw" $host/login_cli)
+  loggedInID=$(curl -s -X POST -d "email=$entered_email" -d "password=$passw" $host/login_cli)
 
   #seem to be always a false test. As you return an id or error string, condition was always true
   if [[ "$loggedInID" != "wrong username or password" ]]; then
@@ -171,12 +171,12 @@ login() {
 
 
 getAccountType() { 
-  user_type=$(curl -s -F "uid=$id" $host/usertype)
+  user_type=$(curl -s -X POST -d "uid=$id" $host/usertype)
 }
 
 getAccountSpace() {
-  accountSizeAvailable=$(curl -s -F "uid=$id" -F "size=$fileToSendSize" $host/userspaceavailable)
-  accountSize=$(curl -s -F "uid=$id" $host/userspace)
+  accountSizeAvailable=$(curl -s -X POST -d "uid=$id" -d "size=$fileToSendSize" $host/userspaceavailable)
+  accountSize=$(curl -s -X POST -d "uid=$id" $host/userspace)
 }
 
 refer() {
@@ -184,7 +184,7 @@ refer() {
     echoerr -e "\033[01;36m"
     echoerr "info:    referring a friend"
     echoerr -ne "\e[00m"
-    referEmailStatus=$(curl -s -F "email=$friendEmail" -F "id=$id" $host/refer_cli)
+    referEmailStatus=$(curl -s -X POST -d "email=$friendEmail" -d "id=$id" $host/refer_cli)
     if [ "$referEmailStatus" == "success" ]; then 
       echoerr -e "\033[01;36m"
       echoerr "info:    friend referred successfully"
@@ -204,7 +204,7 @@ refer() {
 deleteFile() {
   getAccountType
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
-    deleteStatus=$(curl -s -F "link=$link" -F "uid=$id" $host/delete_cli)
+    deleteStatus=$(curl -s -X POST -d "link=$link" -d "uid=$id" $host/delete_cli)
     if [ "$deleteStatus" == "file deleted" ]; then 
       echoerr -e "\033[01;36m"
       echoerr "info:    file deleted"
@@ -273,10 +273,10 @@ sendFile() {
     else
         if [[ $link ]]; then   
             #link was provided, so update target link with file
-            curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
+            curlReturn=$(curl -X POST -d "uid=$id" -d "link=$link" -d "filehandle=@$fileToSend" $host/update_cli)
         else
             #simply create a new one
-            curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+            curlReturn=$(curl -X POST -d "uid=$id" -d "filehandle=@$fileToSend" $host/upload_cli)
             echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
         fi
         echo $curlReturn
@@ -341,7 +341,7 @@ referLink() {
     echoerr "info:    getting referral link"
     echoerr " "
     echoerr -ne "\e[00m"
-    referLinkUrl=$(curl -s -F "id=$id" $host/referlink_cli)
+    referLinkUrl=$(curl -s -X POST -d "id=$id" $host/referlink_cli)
     echo $referLinkUrl
   else
     echoerr -e "\033[01;31m"
@@ -367,7 +367,7 @@ list() {
 listServer() {
   getAccountType
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
-    serverList=$(curl -s -F "uid=$id" $host/list_cli)
+    serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
     if [ "$clientOS" == "Darwin" ]; then
       echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
     else
@@ -474,7 +474,7 @@ fi
 if [ -e "$wsend_base/.id" ]; then
   id=$(cat $wsend_base/.id)
   #ask server for account type
-  user_type=$(curl -s -F "uid=$id" $host/usertype)
+  user_type=$(curl -s -X POST -d "uid=$id" $host/usertype)
   if [ "$user_type" == 'free' ]; then
     freeInfoMessage
   elif [ "$user_type" == 'unregistered' ]; then

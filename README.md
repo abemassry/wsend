@@ -98,7 +98,7 @@ Your first file is sent and wsend has been installed.
 | Hero Paid Account (coming soon)       | ~~100GB~~ | $50/year or $5/month |
  
 
-##API
+## API
 The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense that the only transport method that is used is HTTP POST.
 
 To get a user id:
@@ -140,7 +140,7 @@ To delete a file:
 
 Where $link is a wsend.net url pointing to the file
 
-##FAQ
+## FAQ
 
  1. Q: Why did you program this in Bash wasn't that painful? Bash isn't meant to do these things, you could have used python with pip, nodejs with npm, or ruby with rubygems.
  
@@ -222,4 +222,4 @@ The executable bash script, this can send files and also install the ~.wsend/ di
 
 
 
-#### (C) Copyright 2016, wsend.net
+#### (C) Copyright 2018, wsend.net
