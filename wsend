@@ -273,10 +273,10 @@ sendFile() {
     else
         if [[ $link ]]; then   
             #link was provided, so update target link with file
-            curlReturn=$(curl -X POST -d "uid=$id" -d "link=$link" -d "filehandle=@$fileToSend" $host/update_cli)
+            curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
         else
             #simply create a new one
-            curlReturn=$(curl -X POST -d "uid=$id" -d "filehandle=@$fileToSend" $host/upload_cli)
+            curlReturn=$(curl -F "uid=$id" -F"filehandle=@$fileToSend" $host/upload_cli)
             echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
         fi
         echo $curlReturn
