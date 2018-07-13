@@ -94,8 +94,8 @@ Your first file is sent and wsend has been installed.
 | Unregistered (Anonymous) Account      | 200MB     | Free                 |
 | Free Account                          | 2GB       | Free                 |
 | Supporter Paid Account                | 10GB      | $10/year or $1/month |
-| Enthusiast Paid Account (coming soon) | ~~75GB~~  | $30/year or $3/month |
-| Hero Paid Account (coming soon)       | ~~100GB~~ | $50/year or $5/month |
+| Enthusiast Paid Account               | 75GB      | $30/year or $3/month |
+| Hero Paid Account                     | 100GB     | $50/year or $5/month |
  
 
 ## API
