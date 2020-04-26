@@ -87,7 +87,7 @@ Your first file is sent and wsend has been installed.
 
      wsend --update https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt file.txt
 
-   *Get a qr code for your phone
+   *Get a qr code for your phone*
 
      wsend --qr file.txt
 
@@ -228,4 +228,4 @@ The executable bash script, this can send files and also install the ~.wsend/ di
 
 
 
-#### (C) Copyright 2018, wsend.net
+#### (C) Copyright 2020, wsend.net
