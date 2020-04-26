@@ -612,7 +612,7 @@ fi
 if [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ]; then
   sendFile "qr"
 fi
-if [ "$fileSendBool" == "true"  ]; then
+if [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ]; then
   sendFile
 fi
 
