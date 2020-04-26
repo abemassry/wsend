@@ -22,9 +22,9 @@ Note: This install command appends the alias to your .bashrc or equivalent
     chmod +x ~/bin/wsend
     export PATH=$PATH:~/bin # also put that in your .zshenv or whatever
     wsend file.txt
-    
+
 ## For an easy way to remember
-    
+
     wget https://wsend.net/wsend
     chmod +x wsend
     ./wsend file.txt
@@ -60,34 +60,40 @@ Your first file is sent and wsend has been installed.
      wsend --register
 
    *Login*
-   
+
      wsend --login
-   
+
    *Refer a friend (receive 1GB for you and friend)*
-   
+
      wsend --refer friend@example.com
 
    *Get a referral link to send to people*
-   
+
      wsend --refer-link
-     
+
    *List Local Files (files that have been uploaded from this machine)*
-   
+
      wsend --list-local
 
    *List Server Files (files stored on wsend.net)*
-   
+
      wsend --list-server
 
    *Delete Files*
-   
+
      wsend --rm https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt
 
    *Update Files*
-   
+
      wsend --update https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt file.txt
 
-## Pricing 
+   *Get a qr code for your phone
+
+     wsend --qr file.txt
+
+
+
+## Pricing
 
 | Account                               | Space     | Price                |
 |---------------------------------------|-----------|----------------------|

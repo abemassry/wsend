@@ -249,6 +249,7 @@ deleteByIndex() {
 }
 
 sendFile() {
+  local qr=$1
   if [[ -e "$fileOrDirToSend" ]]; then
     if [ -d "$fileOrDirToSend" ]; then
       #we want to send a directory, so make a compressed archive
@@ -271,15 +272,19 @@ sendFile() {
     elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
       filesizeTooLarge
     else
-        if [[ $link ]]; then   
+        if [[ $link ]]; then
             #link was provided, so update target link with file
             curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
         else
             #simply create a new one
-            curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
-            echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
+            if [ "$qr" == "qr" ]; then
+              curlReturn=$(curl -F "uid=$id" -F "qr=true" -F "filehandle=@$fileToSend" $host/upload_cli)
+            else
+              curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+              echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
+            fi
         fi
-        echo $curlReturn
+        echo "$curlReturn"
     fi
 
     if [ -d "$fileOrDirToSend" ]; then
@@ -295,7 +300,7 @@ sendFile() {
 updateFile() {
   getAccountType
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
-    if [ -z "${firstArg}" ] && [ -z "${secondArg}" ]; then 
+    if [ -z "${firstArg}" ] && [ -z "${secondArg}" ]; then
       echoerr -e "\033[01;31m"
       echoerr "error:   need link and file";
       echoerr -e "\033[00m"
@@ -507,6 +512,7 @@ fileSendBool="false"
 echoUsage="false"
 deleteBool="false"
 updateBool="false"
+qrcode="false"
 fileOrDirToSend="$1"
 
 if [ $# == 0 ]; then
@@ -565,6 +571,13 @@ while test -n "$1"; do
       listServer
       shift
       ;;
+   --qr)
+      fileSendBool="true"
+      qrcode="true"
+      fileOrDirToSend="$2"
+      shift
+      shift
+      ;;
     *)
       fileSendBool="true"
       shift
@@ -596,7 +609,10 @@ if [ $updateBool == "true" ]; then
   updateFile
 fi
 
-if [ "$fileSendBool" == "true" ]; then
+if [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ]; then
+  sendFile "qr"
+fi
+if [ "$fileSendBool" == "true"  ]; then
   sendFile
 fi
 
@@ -612,6 +628,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [-xi|--rm-index] <idx>"
   echoerr "error:   Usage: [-u|--update] <url> <file>"
   echoerr "error:   Usage: [-ui|--update-index] <idx>"
+  echoerr "error:   Usage: [--qr] <file>"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "
