@@ -73,11 +73,15 @@ Your first file is sent and wsend has been installed.
 
    *List Local Files (files that have been uploaded from this machine)*
 
-     wsend --list-local
+     wsend --list-local || wsend -ll
 
    *List Server Files (files stored on wsend.net)*
 
-     wsend --list-server
+     wsend --list-server || wsend -ls
+
+   *List Server Files (files stored on wsend.net) urls only*
+
+     wsend --list-server-url || wsend -lsu
 
    *Delete Files*
 
