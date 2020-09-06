@@ -387,6 +387,24 @@ listServer() {
   fi
 
 }
+listServerUrl() {
+  getAccountType
+  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+    serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
+    if [ "$clientOS" == "Darwin" ]; then
+      echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | sed 's/^.*\(https:.*$\)/\1/' | tr -d ' '
+    else
+      echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | sed 's/^.*\(https:.*$\)/\1/' | tr -d ' '
+    fi
+    #echo $serverList | grep -Po '"filename":.*?[^\\]",' | tr "\"" " "
+  else
+    echoerr -e "\033[01;31m"
+    echoerr "error:   only registered and paid accounts can list files";
+    echoerr "error:   from the server";
+    echoerr -e "\033[00m"
+  fi
+
+}
 
 downloadLastVersion() {
 	curl -s -L -o "$wsend_base/update.sh" https://raw.github.com/abemassry/wsend/master/update.sh
@@ -571,6 +589,10 @@ while test -n "$1"; do
       listServer
       shift
       ;;
+   --list-server-url|-lsu)
+      listServerUrl
+      shift
+      ;;
    --qr)
       fileSendBool="true"
       qrcode="true"
@@ -623,6 +645,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [--refer friend@example.com]"
   echoerr "error:   Usage: [--refer-link]"
   echoerr "error:   Usage: [-ls|--list-server]"
+  echoerr "error:   Usage: [-lsu|--list-server-url]"
   echoerr "error:   Usage: [-ll|--list-local]"
   echoerr "error:   Usage: [-x|--rm] <url>"
   echoerr "error:   Usage: [-xi|--rm-index] <idx>"
