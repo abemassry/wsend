@@ -392,11 +392,11 @@ listServerUrl() {
   if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
     serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
     if [ "$clientOS" == "Darwin" ]; then
-      echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | sed 's/^.*\(https:.*$\)/\1/' | tr -d ' '
+      echo $serverList | sed 's/},{/\'$'\n/g'| sed 's/^.*"link":"\(.*\)".*$/\1/g'
     else
-      echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | sed 's/^.*\(https:.*$\)/\1/' | tr -d ' '
+      echo $serverList | sed 's/},{/\n/g' | sed 's/^.*"link":"\(.*\)".*$/\1/g'
     fi
-    #echo $serverList | grep -Po '"filename":.*?[^\\]",' | tr "\"" " "
+
   else
     echoerr -e "\033[01;31m"
     echoerr "error:   only registered and paid accounts can list files";
