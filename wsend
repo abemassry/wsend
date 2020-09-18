@@ -389,9 +389,9 @@ listServer() {
 }
 listServerUrl() {
   getAccountType
-  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+  if [[ "$user_type" != 'unregistered' ]] && [[ "$user_type" != 'unknown' ]]; then
     serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
-    if [ "$clientOS" == "Darwin" ]; then
+    if [[ "$clientOS" == "Darwin" ]]; then
       echo $serverList | sed 's/},{/\'$'\n/g'| sed 's/^.*"link":"\(.*\)".*$/\1/g'
     else
       echo $serverList | sed 's/},{/\n/g' | sed 's/^.*"link":"\(.*\)".*$/\1/g'
