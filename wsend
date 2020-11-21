@@ -227,7 +227,7 @@ deleteFile() {
     echoerr "error:   deleting available to registered accounts";
     echoerr -e "\033[00m"
   fi
-  
+
 }
 
 link_from_index() {
@@ -250,6 +250,9 @@ deleteByIndex() {
 
 sendFile() {
   local qr=$1
+  if [[ "$qr" != "qr" ]]; then
+    local ttl=$1
+  fi
   if [[ -e "$fileOrDirToSend" ]]; then
     if [ -d "$fileOrDirToSend" ]; then
       #we want to send a directory, so make a compressed archive
@@ -277,7 +280,11 @@ sendFile() {
             curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
         else
             #simply create a new one
-            if [ "$qr" == "qr" ]; then
+            if [[ "$qr" == "qr" && "$ttl" ]]; then
+              curlReturn=$(curl -F "uid=$id" -F "ttl=$ttl" -F "qr=true" -F "filehandle=@$fileToSend" $host/upload_cli)
+            elif [[ "$qr" != "qr" && "$ttl" ]]; then
+              curlReturn=$(curl -F "uid=$id" -F "ttl=$ttl" -F "filehandle=@$fileToSend" $host/upload_cli)
+            elif  [[ "$qr" == "qr" && ! "$ttl" ]]; then
               curlReturn=$(curl -F "uid=$id" -F "qr=true" -F "filehandle=@$fileToSend" $host/upload_cli)
             else
               curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
@@ -353,7 +360,7 @@ referLink() {
     echoerr "error:   referrals available to registered accounts";
     echoerr -e "\033[00m"
   fi
-  
+
 }
 
 list() {
@@ -531,6 +538,7 @@ echoUsage="false"
 deleteBool="false"
 updateBool="false"
 qrcode="false"
+ttl=""
 fileOrDirToSend="$1"
 
 if [ $# == 0 ]; then
@@ -600,6 +608,13 @@ while test -n "$1"; do
       shift
       shift
       ;;
+   --ttl|-t)
+      fileSendBool="true"
+      ttl="$2"
+      fileOrDirToSend="$3"
+      shift
+      shift
+      ;;
     *)
       fileSendBool="true"
       shift
@@ -631,10 +646,13 @@ if [ $updateBool == "true" ]; then
   updateFile
 fi
 
-if [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ]; then
+if [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ] && [[ $ttl ]]; then
+  sendFile "qr" "$ttl"
+elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ] && [[ ! $ttl ]]; then
   sendFile "qr"
-fi
-if [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ]; then
+elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ] && [[ $ttl ]]; then
+  sendFile "$ttl"
+elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ] && [[ ! $ttl ]]; then
   sendFile
 fi
 
@@ -652,6 +670,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [-u|--update] <url> <file>"
   echoerr "error:   Usage: [-ui|--update-index] <idx>"
   echoerr "error:   Usage: [--qr] <file>"
+  echoerr "error:   Usage: [-t|--ttl] <1h> <file>"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "

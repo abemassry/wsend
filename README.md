@@ -95,6 +95,14 @@ Your first file is sent and wsend has been installed.
 
      wsend --qr file.txt
 
+   *Remove a file after a certain amount of time
+
+     wsend --ttl 1h file.txt
+
+     # in hours (h), days (d), or months (m)
+     # e.g. 3h [3 hours], 4d [4 days], 2m [2 months]
+     # m is a shorthand for 30d, 2m would be 60 days independent of
+     # calendar month
 
 
 ## Pricing
