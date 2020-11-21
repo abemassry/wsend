@@ -95,7 +95,7 @@ Your first file is sent and wsend has been installed.
 
      wsend --qr file.txt
 
-   *Remove a file after a certain amount of time
+   *Remove a file after a certain amount of time*
 
      wsend --ttl 1h file.txt
 
