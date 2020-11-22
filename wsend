@@ -604,14 +604,24 @@ while test -n "$1"; do
    --qr)
       fileSendBool="true"
       qrcode="true"
-      fileOrDirToSend="$2"
+      if [[ "$2" == "--ttl" || "$2" == "-t" ]]; then
+        ttl=$3
+        fileOrDirToSend="$4"
+      else
+        fileOrDirToSend="$2"
+      fi
       shift
       shift
       ;;
    --ttl|-t)
       fileSendBool="true"
       ttl="$2"
-      fileOrDirToSend="$3"
+      if [[ "$3" == "--qr" ]]; then
+        qrcode="true"
+        fileOrDirToSend="$4"
+      else
+        fileOrDirToSend="$3"
+      fi
       shift
       shift
       ;;
