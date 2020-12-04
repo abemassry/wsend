@@ -130,6 +130,12 @@ filesizeTooLarge () {
   echoerr -e "\033[00m"
 }
 
+sentEmail () {
+  echoerr -e "\033[01;36m"
+  echoerr "info:    Sent email to $sendEmail"
+  echoerr -e "\033[00m"
+}
+
 register() {
   echoerr -e "\033[01;36m"
   echoerr "info:    enter email and password to register"
@@ -250,9 +256,13 @@ deleteByIndex() {
 
 sendFile() {
   local qr=$1
-  if [[ "$qr" != "qr" ]]; then
+  if [[ "$qr" != "qr" && "$qr" != *"@"* ]]; then
     local ttl=$1
   fi
+  if [[ "$sendEmail" == *"@"* ]]; then
+    local sendMail=$sendEmail
+  fi
+
   if [[ -e "$fileOrDirToSend" ]]; then
     if [ -d "$fileOrDirToSend" ]; then
       #we want to send a directory, so make a compressed archive
@@ -280,12 +290,20 @@ sendFile() {
             curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
         else
             #simply create a new one
-            if [[ "$qr" == "qr" && "$ttl" ]]; then
+            if [[ "$qr" == "qr" && "$ttl" && ! "$sendMail" ]]; then
               curlReturn=$(curl -F "uid=$id" -F "ttl=$ttl" -F "qr=true" -F "filehandle=@$fileToSend" $host/upload_cli)
-            elif [[ "$qr" != "qr" && "$ttl" ]]; then
-              curlReturn=$(curl -F "uid=$id" -F "ttl=$ttl" -F "filehandle=@$fileToSend" $host/upload_cli)
-            elif  [[ "$qr" == "qr" && ! "$ttl" ]]; then
+            elif [[ "$qr" != "qr" && "$ttl" && "$sendMail" ]]; then
+              curlReturn=$(curl -F "uid=$id" -F "ttl=$ttl" -F "email=$sendMail" -F "filehandle=@$fileToSend" $host/upload_cli)
+              if [[ "$curlReturn" == *"https"* ]]; then
+                sentEmail
+              fi
+            elif  [[ "$qr" == "qr" && ! "$ttl" && ! "$sendMail" ]]; then
               curlReturn=$(curl -F "uid=$id" -F "qr=true" -F "filehandle=@$fileToSend" $host/upload_cli)
+            elif [[ "$qr" != "qr" && ! "$ttl" && "$sendMail" ]]; then
+              curlReturn=$(curl -F "uid=$id" -F "email=$sendMail" -F "filehandle=@$fileToSend" $host/upload_cli)
+              if [[ "$curlReturn" == *"https"* ]]; then
+                sentEmail
+              fi
             else
               curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
               echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" >> "$wsend_base/.list"
@@ -378,7 +396,7 @@ list() {
 
 listServer() {
   getAccountType
-  if [ $user_type != 'unregistered' ] && [ $user_type != 'unknown' ]; then
+  if [[ "$user_type" != "unregistered" ]] && [[ "$user_type" != "unknown" ]]; then
     serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
     if [ "$clientOS" == "Darwin" ]; then
       echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
@@ -539,6 +557,7 @@ deleteBool="false"
 updateBool="false"
 qrcode="false"
 ttl=""
+sendEmail=""
 fileOrDirToSend="$1"
 
 if [ $# == 0 ]; then
@@ -619,7 +638,25 @@ while test -n "$1"; do
       if [[ "$3" == "--qr" ]]; then
         qrcode="true"
         fileOrDirToSend="$4"
+      elif [[ "$3" == "-m" || "$3" == "--mail" ]]; then
+        # --ttl[1] 1hr[2] --mail[3] foo@bar.com[4] file[5]
+        sendEmail=$4
+        fileOrDirToSend="$5"
       else
+        fileOrDirToSend="$3"
+      fi
+      shift
+      shift
+      ;;
+   --mail|-m)
+      fileSendBool="true"
+      sendEmail="$2"
+      if [[ "$3" == "-t" || "$3" == "--ttl" ]]; then
+        # --mail[1] foo@bar.com[2] --ttl[3] 1h[4] file[5]
+        ttl=$4
+        fileOrDirToSend="$5"
+      else
+        # --mail[1] foo@bar.com[2] file[3]
         fileOrDirToSend="$3"
       fi
       shift
@@ -658,11 +695,15 @@ fi
 
 if [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ] && [[ $ttl ]]; then
   sendFile "qr" "$ttl"
-elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" == "true" ] && [[ ! $ttl ]]; then
+elif [ "$fileSendBool" == "true" ] && [ "$qrcode" == "true" ] && [[ ! $ttl ]]; then
   sendFile "qr"
-elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ] && [[ $ttl ]]; then
+elif [ "$fileSendBool" == "true" ] && [ "$qrcode" != "true" ] && [[ $ttl ]] && [[ ! $sendEmail ]]; then
   sendFile "$ttl"
-elif [ "$fileSendBool" == "true"  ] && [ "$qrcode" != "true" ] && [[ ! $ttl ]]; then
+elif [ "$fileSendBool" == "true" ] && [ "$qrcode" != "true" ] && [[ ! $ttl ]] && [[ $sendEmail ]]; then
+  sendFile "$sendEmail"
+elif [ "$fileSendBool" == "true" ] && [ "$qrcode" != "true" ] && [[ $ttl ]] && [[ $sendEmail ]]; then
+  sendFile "$ttl" "$sendEmail"
+elif [ "$fileSendBool" == "true" ] && [ "$qrcode" != "true" ] && [[ ! $ttl ]] & [[ ! $sendEmail ]]; then
   sendFile
 fi
 
@@ -681,6 +722,7 @@ if [ $echoUsage == "true" ]; then
   echoerr "error:   Usage: [-ui|--update-index] <idx>"
   echoerr "error:   Usage: [--qr] <file>"
   echoerr "error:   Usage: [-t|--ttl] <1h> <file>"
+  echoerr "error:   Usage: [-m|--mail] <email address> <file>"
   echoerr "error:   or send a file, example:"
   echoerr "error:   $0 file.txt"
   echoerr "error:   "

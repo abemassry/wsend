@@ -38,6 +38,8 @@ Your first file is sent and wsend has been installed.
  - Integrates well with unix pipes
  - Send a file without registering
  - User accounts available with large amounts of storage space
+ - Optional time-to-live auto-expiring files
+ - Optionaly send an email with link
 
 ## Usage
 
@@ -103,6 +105,11 @@ Your first file is sent and wsend has been installed.
      # e.g. 3h [3 hours], 4d [4 days], 2m [2 months]
      # m is a shorthand for 30d, 2m would be 60 days independent of
      # calendar month
+
+   *Send an email with a link*
+
+     wsend --mail foo@bar.com file.txt
+
 
 
 ## Pricing
