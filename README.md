@@ -87,11 +87,11 @@ Your first file is sent and wsend has been installed.
 
    *Delete Files*
 
-     wsend --rm https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt
+     wsend --rm https://wsnd.io/xqZgx2HQ/file.txt
 
    *Update Files*
 
-     wsend --update https://wsend.net/dd976079cb4980a44c5dcd2ee07b817b/file.txt file.txt
+     wsend --update https://wsnd.io/xqZgx2HQ/file.txt file.txt
 
    *Get a qr code for your phone*
 
@@ -247,4 +247,4 @@ The executable bash script, this can send files and also install the ~.wsend/ di
 
 
 
-#### (C) Copyright 2020, wsend.net
+#### (C) Copyright 2021, wsend.net
