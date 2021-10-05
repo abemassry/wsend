@@ -10,25 +10,26 @@
 `wsend` uses [wsend.net](https://wsend.net) for backend file handling.
 
 ## Two-line wsend install
-
-    wget https://raw.githubusercontent.com/abemassry/wsend/master/install.sh -O - | bash
-    alias wsend="~/.wsend/wsend"
+```sh
+wget https://raw.githubusercontent.com/abemassry/wsend/master/install.sh -O - | bash
+alias wsend="~/.wsend/wsend"
+```
 Note: This install command appends the alias to your .bashrc or equivalent
 
 ## Or if you prefer the UNIX way
-
-    mkdir -p ~/bin # just in case
-    wget https://wsend.net/wsend | ~/bin/wsend
-    chmod +x ~/bin/wsend
-    export PATH=$PATH:~/bin # also put that in your .zshenv or whatever
-    wsend file.txt
-
+```sh
+mkdir -p ~/bin # just in case
+wget https://wsend.net/wsend | ~/bin/wsend
+chmod +x ~/bin/wsend
+export PATH=$PATH:~/bin # also put that in your .zshenv or whatever
+wsend file.txt
+```
 ## For an easy way to remember
-
-    wget https://wsend.net/wsend
-    chmod +x wsend
-    ./wsend file.txt
-
+```sh
+wget https://wsend.net/wsend
+chmod +x wsend
+./wsend file.txt
+```
 Your first file is sent and wsend has been installed.
 
 ## Features
@@ -39,7 +40,7 @@ Your first file is sent and wsend has been installed.
  - Send a file without registering
  - User accounts available with large amounts of storage space
  - Optional time-to-live auto-expiring files
- - Optionaly send an email with link
+ - Optionally send an email with link
 
 ## Usage
 
@@ -98,7 +99,7 @@ Your first file is sent and wsend has been installed.
      wsend --qr file.txt
 
    *Remove a file after a certain amount of time*
-
+ 
      wsend --ttl 1h file.txt
 
      # in hours (h), days (d), or months (m)
@@ -165,54 +166,54 @@ To delete a file:
 
 Where $link is a wsend.net url pointing to the file
 
+---
 ## FAQ
 
  1. Q: Why did you program this in Bash wasn't that painful? Bash isn't meant to do these things, you could have used python with pip, nodejs with npm, or ruby with rubygems.
- 
-       A: While it was painful we wanted this script to be ubiquitous as possible and bash was installed on all of our *nix machines.  We do have plans to write this in the languages you mention and will work towards this in the future.  If you would like to write a client in one of these languages it would be something we would both appreciate and support. UPDATE: node-wsend available on npm
+
+     A: While it was painful we wanted this script to be ubiquitous as possible and bash was installed on all of our *nix machines. We do have plans to write this in the languages you mention and will work towards this in the future. If you would like to write a client in one of these languages it would be something we would both appreciate and support. UPDATE: node-wsend available on npm
 
  2. Q: What about wput? Isn't that the opposite of wget?
- 
-       A: wput is an ftp client and its aim is a little different than that of wsend.  wsend uploads files through https which works on port 443 which in some restricted firewall situations may work (if you can access https pages). They serve different purposes and if you like wput as well as wsend we hope you can use them both, in different ways.
+
+     A: wput is an FTP client and its aim is a little different than that of wsend. wsend uploads files through HTTPS which works on port 443 which in some restricted firewall situations may work (if you can access HTTPS pages). They serve different purposes and if you like wput as well as wsend we hope you can use them both, in different ways.
 
  3. Q: When are the Enthusiast and Hero accounts going to become available?
- 
-       A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space.  We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment.  We do not want to offer services that we can't fully 100% support until we are ready to.
+
+     A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space. We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment. We do not want to offer services that we can't fully 100% support until we are ready to.
 
  4. Q: What is the max filesize?
 
-       A: For the Unregistered Account it is 200MB, for the Free account it is 2GB, for the Paid accounts it is 10GB.
- 
- 5. Q: I had an unregistered 200MB account.  Can I get a listing of my files?
- 
-       A:  If you register through the command line and then log into https://wsend.net you sould be able to get a listing of all of the files you have uploaded.
+     A: For the Unregistered Account it is 200MB, for the Free account it is 2GB, for the Paid accounts it is 10GB.
+
+ 5. Q: I had an unregistered 200MB account. Can I get a listing of my files?
+
+     A: If you register through the command line and then log into https://wsend.net you should be able to get a listing of all of the files you have uploaded.
 
  6. Q: But I don't want to register, can't you list my files on the command line with a wsend --ls or some such?
- 
-       A: While command line account management is definitely in the works, we would really prefer it if you registered so you can make sure a file is actually yours before deleting. UPDATE: wsend -ls works from the command line to list your files.  However you still need to register to use this command.
+
+     A: While command line account management is definitely in the works, we would prefer it if you registered so you can make sure a file is yours before deleting it. UPDATE: wsend -ls works from the command line to list your files. However, you still need to register to use this command.
 
  7. Q: I have an unregistered account, why is my file not loading?
 
-       A: We remove files from unregistered accounts when they become 30 days old or space is needed on the server whichever comes first.
+     A: We remove files from unregistered accounts when they become 30 days old or space is needed on the server whichever comes first.
 
  8. Q: I have a free account, why are my files missing?
 
-       A: We remove files from free accounts when they become 30 days old or space is needed on the server whichever comes first.
+     A: We remove files from free accounts when they become 30 days old or space is needed on the server whichever comes first.
 
  9. Q: But why, that doesn't seem right, no other service does this?
 
-       A: The wsend program and service is primarily provided for sending files. We have to maintain the best service possible for paying users, once the paying user-base grows we can support more benefits for the unregistered and free accounts.  This service is not meant to compete with other services that store files for free, it can be used as a quick and easy way to send files.
+     A: The wsend program and service are primarily provided for sending files. We have to maintain the best service possible for paying users, once the paying user-base grows we can support more benefits for the unregistered and free accounts. This service is not meant to compete with other services that store files for free, it can be used as a quick and easy way to send files.
 
  10. Q: Can I use the wsend script to interface with another web service?
 
-       A: By all means, its GPL licensed and you can adapt it to whatever service you would like or create your own.
+      A: By all means, it's GPL licensed and you can adapt it to whatever service you would like or create your own.
 
  11. Q: I have a problem but it is not listed here, who should I ask?
 
-       A: While we will try to respond to all requests, you can contact us at https://wsend.net/about If you are a paying user we will definitely respond and will not rest till your problem is resolved.  Just fill out the contact form with your email that is registered to your paid account.  Paid accounts are so important to us because it not only keeps the lights on and the hard drives spinning, it validates what we are doing and it says you support us, you support the community, and you support an open internet where everyone can exchange ideas.  You are also joining us in contributing to something larger than ourselves.
+      A: While we will try to respond to all requests, you can contact us at https://wsend.net/about If you are a paying user we will definitely respond and will not rest till your problem is resolved. Just fill out the contact form with your email that is registered to your paid account. Paid accounts are so important to us because it not only keeps the lights on and the hard drives spinning, it validates what we are doing and it says you support us, you support the community, and you support an open internet where everyone can exchange ideas. You are also joining us in contributing to something larger than ourselves.	
 
-	
-
+---
 ### Help
 
 If you find wsend difficult to use, please open up a [Github issue](https://github.com/abemassry/wsend/issues) or if you see an area that can be improved send a pull request! 
@@ -246,5 +247,5 @@ The GPL licence
 The executable bash script, this can send files and also install the ~.wsend/ directory.  The only user file it changes is the .bashrc file by appending the alias to the end.  If you have bash installed but use another popular shell it will install it to that .*rc file
 
 
-
+---
 #### (C) Copyright 2021, wsend.net
