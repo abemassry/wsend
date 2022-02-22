@@ -288,6 +288,8 @@ sendFile() {
         if [[ $link ]]; then
             #link was provided, so update target link with file
             curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
+            echo "$curlReturn"
+            exit 0
         else
             #simply create a new one
             if [[ "$qr" == "qr" && "$ttl" && ! "$sendMail" ]]; then
