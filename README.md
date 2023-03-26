@@ -129,7 +129,7 @@ The API is REST like in the sense that there is a representational transfer of s
 
 To get a user id:
 
-    curl -F "start=1" https://wsend.net/createunreg
+    curl -d "start=1" https://wsend.net/createunreg
     
 This should be saved to a file or a database
 
@@ -141,28 +141,28 @@ Where `$id` is the id from the previous request and `$fileToSend` is the file yo
 
 To see if the user has storage space available to send this file:
 
-	curl -F "uid=$id" -F "size=$fileToSendSize" https://wsend.net/userspaceavailable
+	curl -d "uid=$id" -d "size=$fileToSendSize" https://wsend.net/userspaceavailable
     
 
 Where `$fileToSendSize` is the filesize in bytes.
 
 To register a user:
 
-	curl -F "uid=$id" -F "email=$email" -F "password=$password" https://wsend.net/register_cli
+	curl -d "uid=$id" -d "email=$email" -d "password=$password" https://wsend.net/register_cli
     
 You want to protect the password from showing up anywhere as security measure.  For the wsend command line script the password is not echoed and passed directly as a variable.
 
 To log in a user:
 
-	curl -F "email=$email" -F "password=$password" https://wsend.net/login_cli
+	curl -d "email=$email" -d "password=$password" https://wsend.net/login_cli
 
 To list files (returns a list in JSON):
 
-	curl -F "uid=$id" https://wsend.net/list_cli
+	curl -d "uid=$id" https://wsend.net/list_cli
 
 To delete a file:
 
-	curl -F "link=$link" -F "uid=$id" $host/delete_cli
+	curl -d "link=$link" -d "uid=$id" $host/delete_cli
 
 Where $link is a wsend.net url pointing to the file
 
