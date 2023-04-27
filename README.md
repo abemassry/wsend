@@ -179,7 +179,7 @@ Where $link is a wsend.net url pointing to the file
 
  3. Q: When are the Enthusiast and Hero accounts going to become available?
 
-     A: As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space. We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment. We do not want to offer services that we can't fully 100% support until we are ready to.
+     A: ~As soon as we generate enough income with the Supporter accounts we can purchase more servers and more space. We do not want to degrade the quality of paid accounts because paying customers deserve the best treatment. We do not want to offer services that we can't fully 100% support until we are ready to.~ UPDATE: Enthusiast and Hero plans are now available.
 
  4. Q: What is the max filesize?
 
