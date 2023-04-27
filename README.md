@@ -127,6 +127,9 @@ Your first file is sent and wsend has been installed.
 ## API
 The API is REST like in the sense that there is a representational transfer of state.  It isn't REST like in the sense that the only transport method that is used is HTTP POST.
 
+### Update
+Additional API keys with expiration are available for paid accounts. The management is done through the web interface at https://wsend.net/profile/api to use it save the API token to a secure location and use it in the following examples where `$id` is used. It should behave the same as the standard `uid`. 
+
 To get a user id:
 
     curl -d "start=1" https://wsend.net/createunreg
