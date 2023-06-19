@@ -401,9 +401,17 @@ listServer() {
   if [[ "$user_type" != "unregistered" ]] && [[ "$user_type" != "unknown" ]]; then
     serverList=$(curl -s -X POST -d "uid=$id" $host/list_cli)
     if [ "$clientOS" == "Darwin" ]; then
-      echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      if [[ "$user_type" == "paid" ]]; then
+        echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","download_count":/\'$'\t/g' | sed 's/,"link":"/\'$'\t/g' | sed 's/","filename":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      else
+        echo $serverList | sed 's/},{/\'$'\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\'$'\t/g' | sed 's/T............Z","filename":"/\'$'\t/g' | sed 's/","link":"/\'$'\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      fi
     else
-      echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      if [[ "$user_type" == "paid" ]]; then
+        echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","download_count":/\t/g' | sed 's/,"filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      else
+        echo $serverList | sed 's/},{/\n/g' | sed 's/"size"://g' | sed 's/,"timestamp":"/\t/g' | sed 's/T............Z","filename":"/\t/g' | sed 's/","link":"/\t/g' | sed 's/}]//g' | tr -d '[{' | sed 's/"//g' | column -t
+      fi
     fi
     #echo $serverList | grep -Po '"filename":.*?[^\\]",' | tr "\"" " "
   else
